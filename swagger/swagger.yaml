@@ -1,0 +1,433 @@
+---
+swagger: "2.0"
+info:
+  description: "API to support Project Victoria backend"
+  version: "1.0.0"
+  title: "Project Victoria API"
+host: "127.0.0.1:8080"
+basePath: "/api"
+schemes:
+- "http"
+produces:
+- "application/json"
+paths:
+  /anomalies:
+    get:
+      tags:
+      - "default"
+      summary: "Get a list of anomalies detected by the system over a specific time\
+        \ range"
+      description: "TBD"
+      operationId: "controllers.default_controller.anomalies_get"
+      parameters:
+      - name: "start_ts"
+        in: "query"
+        description: "Timestamp of the start of the desired data range"
+        required: true
+        type: "integer"
+      - name: "end_ts"
+        in: "query"
+        description: "Timestamp of the end of the desired data range, or current server\
+          \ timestamp if omitted"
+        required: false
+        type: "integer"
+      responses:
+        200:
+          description: "TBD"
+          schema:
+            type: "array"
+            items:
+              $ref: "#/definitions/AnomalyListing"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+  /cost/{vehicle_id}:
+    get:
+      tags:
+      - "default"
+      summary: "Get cost and efficiency indices for a specific vehicle"
+      description: "TBD"
+      operationId: "controllers.default_controller.cost_vehicle_id_get"
+      parameters:
+      - name: "vehicle_id"
+        in: "path"
+        description: "ID of vehicle to get index data for"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Successfully retrieved index data for the vehicle"
+          schema:
+            $ref: "#/definitions/inline_response_200"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+  /map:
+    get:
+      tags:
+      - "default"
+      summary: "All data which should be needed to draw the map overview"
+      description: "insert description here\n"
+      operationId: "controllers.default_controller.map_get"
+      parameters: []
+      responses:
+        200:
+          description: "A JSON object containing data needed to draw the map overview"
+          schema:
+            $ref: "#/definitions/Overview"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+  /sensordata/{vehicle_id}:
+    get:
+      tags:
+      - "default"
+      summary: "Get data for a set of sensors on a specific vehicle"
+      description: "TBD"
+      operationId: "controllers.default_controller.sensordata_vehicle_id_get"
+      parameters:
+      - name: "vehicle_id"
+        in: "path"
+        description: "Id of vehicle to get sensor data for"
+        required: true
+        type: "string"
+      - name: "sensor_ids"
+        in: "query"
+        description: "List of IDs of sensors to get data from (comma separated)"
+        required: true
+        type: "string"
+      - name: "start_ts"
+        in: "query"
+        description: "Timestamp of the start of the desired data range"
+        required: true
+        type: "integer"
+      - name: "end_ts"
+        in: "query"
+        description: "Timestamp of the end of the desired data range, or current server\
+          \ timestamp if omitted"
+        required: false
+        type: "integer"
+      responses:
+        200:
+          description: "Successfully retrieved the sensor data for the specified sensors"
+          schema:
+            type: "object"
+            description: "Returns an object where each key is the sensor id, and the\
+              \ value for each key is an array of TimeValue objects representing data\
+              \ for this key. Since you can't define dynamic object keys in swagger,\
+              \ I can't fully specify this call in this yaml file. Additional documentation\
+              \ on this method will be provided at a later time."
+            properties: {}
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+  /vehicle/{vehicle_id}:
+    get:
+      tags:
+      - "default"
+      summary: "Get details on a specific vehicle"
+      description: "Given a vehicle ID, allows access to a subset of recent sensor\
+        \ data, the vehicle status, vehicle name, and the list of sensors present\
+        \ on this vehicle"
+      operationId: "controllers.default_controller.vehicle_vehicle_id_get"
+      parameters:
+      - name: "vehicle_id"
+        in: "path"
+        description: "ID of vehicle to get details for"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "A JSON object containing details on the given vehicle"
+          schema:
+            $ref: "#/definitions/VehicleDetails"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+  /wsctl:
+    post:
+      tags:
+      - "default"
+      summary: "Control messages sent over the websocket by the server"
+      description: "We don't want to flood the websocket connection with messages\
+        \ that the UI doesn't need, so it is necessary for the UI to tell the server\
+        \ when it is no longer interested in receiving"
+      operationId: "controllers.default_controller.wsctl_post"
+      parameters:
+      - in: "body"
+        name: "wsctl"
+        description: "TBD"
+        required: true
+        schema:
+          type: "array"
+          items:
+            $ref: "#/definitions/WsctlRequest"
+      responses:
+        200:
+          description: "TBD"
+          schema:
+            type: "array"
+            description: "TBD"
+            items:
+              $ref: "#/definitions/WsctlResponse"
+        default:
+          description: "Unexpected error"
+          schema:
+            $ref: "#/definitions/Error"
+definitions:
+  Overview:
+    type: "object"
+    properties:
+      vehicles:
+        type: "array"
+        description: "Array of JSON objects, each of which provides a high-level overview\
+          \ of a single vehicle"
+        items:
+          $ref: "#/definitions/VehicleOverview"
+      updateWebSocket:
+        type: "string"
+        description: "URL of a websocket endpoint used for sending real-time updates"
+  IndexObject:
+    type: "object"
+    properties:
+      day:
+        $ref: "#/definitions/IndexObject_day"
+      week:
+        $ref: "#/definitions/IndexObject_day"
+      month:
+        $ref: "#/definitions/IndexObject_day"
+  VehicleOverview:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        description: "Human-readable name for a vehicle"
+      id:
+        type: "string"
+        description: "Unique identifier for this vehicle, not necessarily human-readable"
+      lat:
+        type: "number"
+        format: "double"
+        description: "Current vehicle latitude"
+      long:
+        type: "number"
+        format: "double"
+        description: "Current vehicle longitude"
+      status:
+        type: "string"
+        description: "Current vehicle status"
+  VehicleDetails:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        description: "Human-readable name for a vehicle"
+      status:
+        type: "string"
+      sensors:
+        type: "array"
+        description: "A list of sensors present on this vehicle"
+        items:
+          $ref: "#/definitions/SensorDescriptor"
+      sensordata:
+        $ref: "#/definitions/VehicleDetails_sensordata"
+  TimeValue:
+    type: "object"
+    properties:
+      timestamp:
+        type: "number"
+        format: "int"
+      value:
+        type: "number"
+        format: "double"
+  AnomalyListing:
+    type: "object"
+    properties:
+      desc:
+        type: "string"
+        description: "A brief description of the anomaly"
+      cost_impact:
+        type: "string"
+        description: "The cost impact of the anomaly, in terms of the cost/efficiency\
+          \ indices"
+      vehicle_id:
+        type: "string"
+        description: "The vehicle on which the anomaly occured"
+      timestamp:
+        type: "integer"
+        description: "The time at which the anomaly occured"
+      cause:
+        type: "string"
+        description: "A brief description of the cause of the anomaly"
+      actions:
+        type: "string"
+        description: "A brief description of the actions taken as a result of the\
+          \ anomaly"
+      downtime:
+        type: "string"
+        description: "A text representation of the amount of time it took to resolve\
+          \ the anomaly"
+  Error:
+    type: "object"
+    properties:
+      code:
+        type: "integer"
+        format: "int32"
+      message:
+        type: "string"
+      fields:
+        type: "string"
+  SensorDescriptor:
+    type: "object"
+    properties:
+      sensor_id:
+        type: "string"
+        description: "globally unique ID of the sensor"
+      sensor_name:
+        type: "string"
+        description: "Human readable name of this sensor"
+  WsctlRequest:
+    type: "object"
+    properties:
+      action:
+        type: "string"
+        description: "Action which should be taken (either the string \"start\" or\
+          \ \"stop\")"
+      update_type:
+        type: "string"
+        description: "Type of websocket message to change (either \"position\", \"\
+          sensordata\", or \"sensorstatus\")"
+      entity_id:
+        type: "string"
+        description: "ID of the entity to change (either a vehicle ID or a sensor\
+          \ ID)"
+  WsctlResponse:
+    type: "object"
+    properties:
+      success:
+        type: "boolean"
+  WsUpdate:
+    type: "object"
+    properties:
+      updates:
+        type: "array"
+        items:
+          type: "object"
+          properties: {}
+  WsAnomalyUpdate:
+    type: "object"
+    properties:
+      update_type:
+        type: "string"
+        description: "The type of update message (always the string \"anomaly\")"
+      vehicle_id:
+        type: "string"
+        description: "The ID of the vehicle where this anomaly occurred"
+      desc:
+        type: "string"
+        description: "A brief, human readable description of the anomaly"
+      cost_impact:
+        type: "string"
+        description: "The cost impact of the anomaly, in terms of the cost/efficiency\
+          \ indices"
+      timestamp:
+        type: "integer"
+        description: "The time at which the anomaly was declared"
+      cause:
+        type: "string"
+        description: "A brief description of the cause of the anomaly"
+      actions:
+        type: "string"
+        description: "A brief description of the actions taken as a result of the\
+          \ anomaly"
+      downtime:
+        type: "string"
+        description: "A text representation of the amount of time it took to resolve\
+          \ the anomaly"
+  WsPositionUpdate:
+    type: "object"
+    properties:
+      update_type:
+        type: "string"
+        description: "The type of update message (always the string \"position\")"
+      vehicle_id:
+        type: "string"
+        description: "The ID of the vehicle whose position has been updated"
+      lat:
+        type: "number"
+        format: "double"
+        description: "The updated latitude value"
+      long:
+        type: "number"
+        format: "double"
+        description: "The updated longitude value"
+  WsSensorDataUpdate:
+    type: "object"
+    properties:
+      update_type:
+        type: "string"
+        description: "The type of update message (always the string \"sensordata\"\
+          )"
+      sensor_id:
+        type: "string"
+        description: "The ID of the sensor which produced new data"
+      values:
+        type: "array"
+        items:
+          $ref: "#/definitions/TimeValue"
+  WsSensorStatusUpdate:
+    type: "object"
+    properties:
+      update_type:
+        type: "string"
+        description: "The type of update message (always the string \"sensorstatus\"\
+          )"
+      sensor_id:
+        type: "string"
+        description: "The ID of the sensor which changed status"
+      value:
+        type: "string"
+        description: "The new sensor status value"
+  inline_response_200:
+    properties:
+      cost_index:
+        $ref: "#/definitions/IndexObject"
+      efficiency_index:
+        $ref: "#/definitions/IndexObject"
+  IndexObject_day:
+    properties:
+      why:
+        type: "string"
+      value:
+        type: "number"
+  VehicleDetails_sensordata:
+    properties:
+      fuel:
+        type: "array"
+        description: "Values eminating from the fuel consumption sensor"
+        items:
+          $ref: "#/definitions/TimeValue"
+      speed:
+        type: "array"
+        description: "Values eminating from the speedometer"
+        items:
+          $ref: "#/definitions/TimeValue"
+      kpi:
+        type: "array"
+        description: "Values eminating from other key performance indicator (KPI)\
+          \ metrics. What this metric represents is TBD."
+        items:
+          $ref: "#/definitions/TimeValue"
+    description: "Recent values from key sensors (hardcoded to 60 seconds of data\
+      \ for now)"
+x-suppress-unused:
+- $ref: "#/definitions/WsUpdate"
+- $ref: "#/definitions/WsAnomalyUpdate"
+- $ref: "#/definitions/WsPositionUpdate"
+- $ref: "#/definitions/WsSensorDataUpdate"
+- $ref: "#/definitions/WsSensorStatusUpdate"
