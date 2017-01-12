@@ -1,0 +1,86 @@
+{
+	"variables": [],
+	"info": {
+		"name": "victoria-api",
+		"_postman_id": "48c1847d-c66f-dea4-2428-315466826439",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Map",
+			"request": {
+				"url": "http://127.0.0.1:8080/api/map",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Cost (1)",
+			"request": {
+				"url": "http://127.0.0.1:8080/api/cost/10000000-0000-0000-0000-000000000000",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Vehicle",
+			"request": {
+				"url": "http://127.0.0.1:8080/api/vehicle/10000000-0000-0000-0000-000000000000",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Anomalies",
+			"request": {
+				"url": "http://127.0.0.1:8080/api/anomalies?start_ts=0&end_ts=0",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Sensor Data",
+			"request": {
+				"url": "http://127.0.0.1:8080/api/sensordata/10000000-0000-0000-0000-000000000000?sensor_ids=0&start_ts=0&end_ts=0",
+				"method": "GET",
+				"header": [],
+				"body": {},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Wsctl",
+			"request": {
+				"url": "http://127.0.0.1:8080/api/wsctl",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n  {\n    \"action\": \"stop\",\n    \"update_type\": \"position\",\n    \"vehicle_id\": \"10000000-0000-0000-0000-000000000000\",\n    \"sensor_id\": \"\"\n  }\n]"
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
