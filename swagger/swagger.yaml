@@ -14,7 +14,7 @@ paths:
   /anomalies:
     get:
       tags:
-      - "default"
+      - "default_controller"
       summary: "Get a list of anomalies detected by the system over a specific time\
         \ range"
       description: "TBD"
@@ -45,7 +45,7 @@ paths:
   /cost/{vehicle_id}:
     get:
       tags:
-      - "default"
+      - "default_controller"
       summary: "Get cost and efficiency indices for a specific vehicle"
       description: "TBD"
       operationId: "controllers.default_controller.cost_vehicle_id_get"
@@ -67,7 +67,7 @@ paths:
   /map:
     get:
       tags:
-      - "default"
+      - "default_controller"
       summary: "All data which should be needed to draw the map overview"
       description: "insert description here\n"
       operationId: "controllers.default_controller.map_get"
@@ -84,7 +84,7 @@ paths:
   /sensordata/{vehicle_id}:
     get:
       tags:
-      - "default"
+      - "default_controller"
       summary: "Get data for a set of sensors on a specific vehicle"
       description: "TBD"
       operationId: "controllers.default_controller.sensordata_vehicle_id_get"
@@ -128,7 +128,7 @@ paths:
   /vehicle/{vehicle_id}:
     get:
       tags:
-      - "default"
+      - "default_controller"
       summary: "Get details on a specific vehicle"
       description: "Given a vehicle ID, allows access to a subset of recent sensor\
         \ data, the vehicle status, vehicle name, and the list of sensors present\
@@ -152,7 +152,7 @@ paths:
   /wsctl:
     post:
       tags:
-      - "default"
+      - "default_controller"
       summary: "Control messages sent over the websocket by the server"
       description: "We don't want to flood the websocket connection with messages\
         \ that the UI doesn't need, so it is necessary for the UI to tell the server\
@@ -258,9 +258,12 @@ definitions:
       vehicle_id:
         type: "string"
         description: "The vehicle on which the anomaly occured"
-      timestamp:
+      declared_timestamp:
         type: "integer"
-        description: "The time at which the anomaly occured"
+        description: "The time at which the anomaly was declared"
+      detection_timestamp:
+        type: "integer"
+        description: "The time at which the anomaly was initially detected"
       cause:
         type: "string"
         description: "A brief description of the cause of the anomaly"
@@ -302,10 +305,13 @@ definitions:
         type: "string"
         description: "Type of websocket message to change (either \"position\", \"\
           sensordata\", or \"sensorstatus\")"
-      entity_id:
+      vehicle_id:
         type: "string"
-        description: "ID of the entity to change (either a vehicle ID or a sensor\
-          \ ID)"
+        description: "ID of the vehicle to change"
+      sensor_id:
+        type: "string"
+        description: "ID of the sensor to change (or the empty string if this is not\
+          \ applicable)"
   WsctlResponse:
     type: "object"
     properties:
