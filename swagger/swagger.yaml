@@ -322,8 +322,12 @@ definitions:
     properties:
       updates:
         type: "array"
+        description: "A list of update objects"
         items:
           type: "object"
+          description: "A JSON object in the format of one of the Websocket update\
+            \ objects. Exactly which object type is indicated by the \"update_type\"\
+            \ field in each object."
           properties: {}
   WsAnomalyUpdate:
     type: "object"
