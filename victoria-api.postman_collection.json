@@ -63,7 +63,7 @@
 			"response": []
 		},
 		{
-			"name": "Wsctl",
+			"name": "Wsctl (stop position 1)",
 			"request": {
 				"url": "http://127.0.0.1:8080/api/wsctl",
 				"method": "POST",
@@ -79,6 +79,46 @@
 					"raw": "[\n  {\n    \"action\": \"stop\",\n    \"update_type\": \"position\",\n    \"vehicle_id\": \"10000000-0000-0000-0000-000000000000\",\n    \"sensor_id\": \"\"\n  }\n]"
 				},
 				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Wsctl (stop sensor data 1/0)",
+			"request": {
+				"url": "http://127.0.0.1:8080/api/wsctl",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n  {\n    \"action\": \"stop\",\n    \"update_type\": \"sensordata\",\n    \"vehicle_id\": \"10000000-0000-0000-0000-000000000000\",\n    \"sensor_id\": \"0\"\n  }\n]"
+				},
+				"description": "Stop sensor data updates from sensor 0 on vehicle 1 "
+			},
+			"response": []
+		},
+		{
+			"name": "Wsctl (start sensor status 3/5)",
+			"request": {
+				"url": "http://127.0.0.1:8080/api/wsctl",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "[\n  {\n    \"action\": \"start\",\n    \"update_type\": \"sensordata\",\n    \"vehicle_id\": \"30000000-0000-0000-0000-000000000000\",\n    \"sensor_id\": \"5\"\n  }\n]"
+				},
+				"description": "Start sensor status updates from sensor 5 on vehicle 3 "
 			},
 			"response": []
 		}
