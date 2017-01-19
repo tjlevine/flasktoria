@@ -345,9 +345,12 @@ definitions:
         type: "string"
         description: "The cost impact of the anomaly, in terms of the cost/efficiency\
           \ indices"
-      timestamp:
+      declared_timestamp:
         type: "integer"
         description: "The time at which the anomaly was declared"
+      detection_timestamp:
+        type: "integer"
+        description: "The time at which the anomaly was detected"
       cause:
         type: "string"
         description: "A brief description of the cause of the anomaly"
@@ -383,6 +386,9 @@ definitions:
         type: "string"
         description: "The type of update message (always the string \"sensordata\"\
           )"
+      vehicle_id:
+        type: "string"
+        description: "The ID of the vehicle where this sensor is located"
       sensor_id:
         type: "string"
         description: "The ID of the sensor which produced new data"
@@ -397,6 +403,9 @@ definitions:
         type: "string"
         description: "The type of update message (always the string \"sensorstatus\"\
           )"
+      vehicle_id:
+        type: "string"
+        description: "The ID of the vehicle where this sensor is located"
       sensor_id:
         type: "string"
         description: "The ID of the sensor which changed status"
