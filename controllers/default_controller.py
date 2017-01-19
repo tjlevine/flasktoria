@@ -102,7 +102,6 @@ def sensordata_vehicle_id_get(vehicle_id, sensor_ids, start_ts, end_ts = None) -
     }
 
 def wsctl_post(wsctl) -> str:
-    print("wsctl argument:")
-    print(wsctl)
-    return 'Not yet implemented'
-
+    return {
+        "success": True
+    }
