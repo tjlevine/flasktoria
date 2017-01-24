@@ -1,20 +1,56 @@
 #!/usr/bin/env python3
 
-import connexion
+import argparse
 import logging
-import flask_socketio
-import threading
-import time
-import websocket
+import multiprocessing
 
-if __name__ == '__main__':
-    con_logger = logging.getLogger('connexion.app')
-    con_logger.setLevel(logging.DEBUG)
-    con_logger.addHandler(logging.StreamHandler())
+def load_data():
+    from json import load
+    with open("data.json") as fin:
+        return load(fin)
 
-    app = connexion.App(__name__, specification_dir='./swagger/', server='gevent')
+# this is the entry point for the rest server
+def rest_server(wsctl_dict):
+    import os
+    import connexion
+    from flask import render_template
+
+    log = logging.getLogger("flasktoria.rest")
+    log.debug("starting rest server (pid is {})".format(os.getpid()))
+
+    app = connexion.App(__name__, specification_dir='./swagger/')
     app.add_api('swagger.yaml', arguments={'title': 'API to support Project Victoria backend'})
-    socketio = flask_socketio.SocketIO()
-    socketio.init_app(app.app)
-    socketio.start_background_task(websocket.emit_loop, socketio)
+
+    @app.app.route('/')
+    def test():
+        DATA = load_data()
+        return render_template('websocket_test.html', ws_url=DATA["WS_URL"])
+    
     app.run(port=8080)
+
+# this is the entry point for the websocket server
+def ws_server(wsctl_dict):
+    logging.getLogger("flasktoria.ws").debug("starting ws server")
+    import victoria_websocket
+
+    victoria_websocket.ws_main(wsctl_dict)
+
+
+# this is the main application entry point
+if __name__ == '__main__':
+    # set all loggers to debug level by default
+    logging.basicConfig(level=logging.DEBUG)
+
+    # wsctl message queue for communication between ws process and rest process
+    mgr = multiprocessing.Manager()
+    wsctl_dict = mgr.dict()
+
+    logging.debug('Setting key "test" in wsctl_dict to "it\'s bad"')
+    wsctl_dict['test'] = "it's bad"
+
+    # init and start the websocket process
+    ws_process = multiprocessing.Process(target=ws_server, args=(wsctl_dict,))
+    ws_process.start()
+
+    # now start the rest server in the current process
+    rest_server(wsctl_dict)

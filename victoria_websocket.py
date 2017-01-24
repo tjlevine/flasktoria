@@ -1,12 +1,17 @@
 import time
 import random
 import logging
+import json
+import asyncio
 
-from controllers.default_controller import DATA
+log = logging.getLogger("flasktoria.ws")
 
-log = logging.getLogger("websocket")
-log.addHandler(logging.StreamHandler())
-log.setLevel(logging.DEBUG)
+def load_data():
+    from json import load
+    with open("data.json") as fin:
+        return load(fin)
+
+DATA = load_data()
 
 def get_random_vehicle_id():
     return random.choice(list(DATA["VEHICLES"].keys()))
@@ -104,29 +109,51 @@ def should_emit_sensor_status():
     # 10 percent chance to change a random sensor status per step
     return random.random() <= 0.1
 
-def emit_and_sleep(socketio):
+def get_updates():
+    log.debug("Possibly generating websocket updates")
     updates = []
     if should_emit_anomaly():
-        logging.debug("Emitting anomaly message")
+        log.debug("Generating anomaly update")
         updates.append(gen_anomaly())
     
     if should_emit_position():
-        logging.debug("Emitting position message")
+        log.debug("Generating position update")
         updates.append(gen_position())
     
     if should_emit_sensor_data():
-        logging.debug("Emitting sensor data message")
+        log.debug("Generating sensor data update")
         updates.append(gen_sensor_data())
 
     if should_emit_sensor_status():
-        logging.debug("Emitting sensor status message")
+        log.debug("Generating sensor status update")
         updates.append(gen_sensor_status())
     
-    if len(updates) > 0:
-        socketio.emit("message", {"updates": updates})
+    return updates
+    
+def ws_main(wsctl_dict):
+    import os
+    import websockets
+    import asyncio
 
-    socketio.sleep(1)
+    log.debug('in ws main (pid is {})'.format(os.getpid()))
 
-def emit_loop(socketio):
-    while True:
-        emit_and_sleep(socketio)
+    # read config to find host and port to set up ws server on
+    _, host, port = map(lambda s: s.replace('//', ''), DATA['WS_URL'].split(':'))
+    log.debug('starting ws server on {}:{}'.format(host, port))
+
+    # define our emit loop as a closure so we can access wsctl_dict
+    async def emit_loop(ws, path):
+        while True:
+            updates = get_updates()
+            if len(updates) > 0:
+                log.debug("emitting {} updates".format(len(updates)))
+                await ws.send(json.dumps({"updates": updates}))
+            
+            await asyncio.sleep(1)
+
+    # set up the ws server
+    start_server = websockets.serve(emit_loop, host, port)
+
+    # run it and then loop forever
+    asyncio.get_event_loop().run_until_complete(start_server)
+    asyncio.get_event_loop().run_forever()

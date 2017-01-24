@@ -1,0 +1,35 @@
+<html>
+    <head>
+        <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha256-/SIrNqv8h6QGKDuNoLGA4iret+kyesCkHGzVUUV0shc=" crossorigin="anonymous"></script>
+        <!--<script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>-->
+        <script type="text/javascript" charset="utf-8">
+            $(document).ready(function () {
+                console.log("script is running");
+                {% if ws_url %}
+                var ws_url = "{{ ws_url }}";
+                {% else %}
+                var ws_url = "ws://127.0.0.1:18080";
+                {% endif %}
+
+                var ws = new WebSocket(ws_url);
+                ws.onopen = function() {
+                    console.log("Connected to server")
+                };
+                ws.onmessage = function (msg) {
+                    console.debug(msg);
+                };
+                //var socket = io.connect('ws://127.0.0.1:8080');
+                /*
+                WEB_SOCKET_DEBUG = true;
+                var socket = io.connect(null, {port: 8080, rememberTransport: false});
+                socket.on('connect', function () {
+                    console.log("Connected to server")
+                });
+                socket.on('message', function(msg) {
+                    console.debug(msg);
+                });
+                */
+            });
+        </script>
+    </head>
+</html>

@@ -1,4 +1,7 @@
 import json
+import logging
+
+log = logging.getLogger("flasktoria.rest")
 
 def load_data():
     with open("data.json") as fin:
