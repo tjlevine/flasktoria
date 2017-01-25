@@ -1,0 +1,5 @@
+{
+    "WS_URL": "ws://flasktoria.docker:18081",
+    "KAFKA_TOPIC": "flasktoria-test",
+    "AVRO_SCHEMA_PATH": "sensorRecord.avsc"
+}
