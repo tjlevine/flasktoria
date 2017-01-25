@@ -1,32 +1,39 @@
 #!/usr/bin/env python3
 
-import argparse
 import logging
 import multiprocessing
 
-def load_data():
+
+def load_config():
     from json import load
-    with open("data.json") as fin:
+    with open("config.json") as fin:
         return load(fin)
+
 
 # this is the entry point for the rest server
 def rest_server(wsctl_dict):
     import os
     import connexion
     from flask import render_template
+    from flask.ext.cors import CORS
 
     log = logging.getLogger("flasktoria.rest")
     log.debug("starting rest server (pid is {})".format(os.getpid()))
 
     app = connexion.App(__name__, specification_dir='./swagger/')
+
+    # enable CORS on all requests
+    CORS(app.app)
+
     app.add_api('swagger.yaml', arguments={'title': 'API to support Project Victoria backend'})
 
     @app.app.route('/')
     def test():
-        DATA = load_data()
-        return render_template('websocket_test.html', ws_url=DATA["WS_URL"])
+        CFG = load_config()
+        return render_template('websocket_test.html', ws_url=CFG["WS_URL"])
     
     app.run(port=8080)
+
 
 # this is the entry point for the websocket server
 def ws_server(wsctl_dict):
