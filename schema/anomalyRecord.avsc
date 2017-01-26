@@ -1,0 +1,15 @@
+{
+	"namespace": "clb.demo.ml.anomaly",
+	"type": "record",
+	"name": "anomalyRecord",
+	"fields": [
+	    { "name": "timestamp", "type": "long"},
+		{ "name": "detection_time", "type": "string" },
+		{ "name": "confirmation_time",  "type": "string" },
+		{ "name": "sensor_group", "type": "string" },
+		{ "name": "sensor", "type": "string" },
+		{ "name": "uuid", "type": "string" },
+		{ "name": "anomaly_id", "type": "int" },
+		{ "name": "src": "type": "string" }
+	]
+}

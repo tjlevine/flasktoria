@@ -1,0 +1,13 @@
+{
+    "namespace": "clb.demo.depa.raw",
+    "type": "record",
+    "name": "sensorRecord",
+    "fields": [
+        { "name": "timestamp", "type": "long" },
+        { "name": "sensor_group", "type": "string" },
+        { "name": "sensor", "type": "string" },
+        { "name": "uuid", "type": "string"},
+        { "name": "value", "type": "string" },
+        { "name": "src", "type": "string"}
+    ]
+}
