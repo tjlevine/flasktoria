@@ -20,26 +20,28 @@ def start_kafka_consumer(msg_queue):
 
     topic = cfg("KAFKA_TOPIC")
     avro_path = cfg("AVRO_SCHEMA_PATH")
+    kafka_bootstrap_server = cfg("KAFKA_BOOTSTRAP_SERVER")
 
     with open(avro_path) as fin:
         avro_schema = avro.schema.Parse(fin.read())
     
-    consumer = KafkaConsumer(topic, group_id='flasktoria', bootstrap_servers=['hostmachine.docker:9092'])
+    consumer = KafkaConsumer(topic, group_id='flasktoria', bootstrap_servers=[kafka_bootstrap_server])
 
     for msg in consumer:
-        bytes_reader = io.BytesIO(msg.value)
-        decoder = avro.io.BinaryDecoder(bytes_reader)
-        reader = avro.io.DatumReader(avro_schema)
-        record = reader.read(decoder)
-        print("Received kafka message: {}".format(record))
-        msg_queue.put(record)
+        #bytes_reader = io.BytesIO(msg.value)
+        #decoder = avro.io.BinaryDecoder(bytes_reader)
+        #reader = avro.io.DatumReader(avro_schema)
+        #record = reader.read(decoder)
+        #print("Received kafka message: {}".format(record))
+        print("Received kafka message: {}".format(msg.value))
+        msg_queue.put(msg)
 
 
 def get_kafka_updates(msg_queue):
     updates = []
     while True:
         try:
-            updates.append(msg_queue.get(block=False))
+            updates.append(msg_queue.get(block=False).value.decode('utf-8'))
         except queue.Empty:
             return updates
 
