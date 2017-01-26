@@ -14,4 +14,4 @@ COPY . /flasktoria
 
 EXPOSE 8080
 EXPOSE 18081
-CMD ["python3", "app.py"]
+CMD ["/flasktoria/docker-entry.sh"]
