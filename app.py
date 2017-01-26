@@ -15,7 +15,7 @@ def rest_server(wsctl_dict):
     import os
     import connexion
     from flask import render_template
-    from flask.ext.cors import CORS
+    from flask_cors import CORS
 
     log = logging.getLogger("flasktoria.rest")
     log.debug("starting rest server (pid is {})".format(os.getpid()))
