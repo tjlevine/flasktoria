@@ -4,14 +4,13 @@ MAINTAINER Tyler Levine <tylevine@cisco.com>
 RUN apt-get update && apt-get -y install gcc && rm -rf /var/lib/apt/lists/*
 
 RUN mkdir /flasktoria
-COPY requirements.txt /flasktoria/requirements.txt
+COPY requirements.txt /flasktoria
 
 RUN ["pip", "install", "-r", "/flasktoria/requirements.txt"]
 
-RUN apt-get -y remove gcc
+RUN apt-get -y remove gcc && apt-get -y autoremove
 
 COPY . /flasktoria
-WORKDIR /flasktoria
 
 EXPOSE 8080
 EXPOSE 18081
