@@ -28,12 +28,12 @@ def start_kafka_consumer(msg_queue):
     consumer = KafkaConsumer(topic, group_id='flasktoria', bootstrap_servers=[kafka_bootstrap_server])
 
     for msg in consumer:
-        #bytes_reader = io.BytesIO(msg.value)
-        #decoder = avro.io.BinaryDecoder(bytes_reader)
-        #reader = avro.io.DatumReader(avro_schema)
-        #record = reader.read(decoder)
-        #print("Received kafka message: {}".format(record))
-        print("Received kafka message: {}".format(msg.value))
+        bytes_reader = io.BytesIO(msg.value)
+        decoder = avro.io.BinaryDecoder(bytes_reader)
+        reader = avro.io.DatumReader(avro_schema)
+        record = reader.read(decoder)
+        print("Received kafka message: {}".format(record))
+        print("Received kafka message:: {}".format(msg.value))
         msg_queue.put(msg)
 
 
