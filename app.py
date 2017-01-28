@@ -18,6 +18,7 @@ def rest_server(wsctl_dict):
     from flask_cors import CORS
 
     log = logging.getLogger("flasktoria.rest")
+    log.setLevel(logging.DEBUG)
     log.debug("starting rest server (pid is {})".format(os.getpid()))
 
     app = connexion.App(__name__, specification_dir='./swagger/')
@@ -46,7 +47,7 @@ def ws_server(wsctl_dict):
 # this is the main application entry point
 if __name__ == '__main__':
     # set all loggers to debug level by default
-    logging.basicConfig(level=logging.DEBUG)
+    #logging.basicConfig(level=logging.DEBUG)
 
     # wsctl message queue for communication between ws process and rest process
     mgr = multiprocessing.Manager()
