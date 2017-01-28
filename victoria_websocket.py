@@ -10,6 +10,7 @@ import test_data
 from cfg import cfg
 
 log = logging.getLogger("flasktoria.ws")
+log.setLevel(logging.DEBUG)
 
 def start_kafka_consumer(msg_queue):
     from kafka import KafkaConsumer
@@ -25,26 +26,38 @@ def start_kafka_consumer(msg_queue):
     with open(avro_path) as fin:
         avro_schema = avro.schema.Parse(fin.read())
     
-    consumer = KafkaConsumer(topic, group_id='flasktoria', bootstrap_servers=[kafka_bootstrap_server])
+    consumer = KafkaConsumer(topic, group_id='flasktoria0', bootstrap_servers=[kafka_bootstrap_server], auto_offset_reset='earliest', enable_auto_commit=False)
 
     for msg in consumer:
         bytes_reader = io.BytesIO(msg.value)
         decoder = avro.io.BinaryDecoder(bytes_reader)
         reader = avro.io.DatumReader(avro_schema)
         record = reader.read(decoder)
-        print("Received kafka message: {}".format(record))
-        print("Received kafka message:: {}".format(msg.value))
-        msg_queue.put(msg)
+        #print("Received kafka message: {}".format(record))
+        msg_queue.put(record)
 
+def parse_gps_message(msg):
+    value = msg['value']
+    vehicle = msg['uuid']
+    longitude, lat = value.replace('[', '').replace(']', '').split(',')
+    return {
+        "update_type": "position",
+        "vehicle_id": vehicle,
+        "lat": lat,
+        "long": longitude
+    }
+
+def parse_kafka_message(msg):
+    if msg['sensor'] == 'GPS':
+        return parse_gps_message(msg)
 
 def get_kafka_updates(msg_queue):
     updates = []
     while True:
         try:
-            updates.append(msg_queue.get(block=False).value.decode('utf-8'))
+            updates.append(msg_queue.get(block=False))
         except queue.Empty:
             return updates
-
 
 def ws_main(wsctl_dict):
     import os
@@ -72,7 +85,8 @@ def ws_main(wsctl_dict):
             updates = get_kafka_updates(kafka_msg_queue)
             if len(updates) > 0:
                 log.debug("emitting {} updates".format(len(updates)))
-                await ws.send(json.dumps({"updates": updates}))
+                updates = map(parse_kafka_message, updates)
+                await ws.send(json.dumps({"updates": list(updates)}))
             
             await asyncio.sleep(1)
 
