@@ -26,7 +26,7 @@ def start_kafka_consumer(msg_queue):
     with open(avro_path) as fin:
         avro_schema = avro.schema.Parse(fin.read())
     
-    consumer = KafkaConsumer(topic, group_id='flasktoria0', bootstrap_servers=[kafka_bootstrap_server], auto_offset_reset='earliest', enable_auto_commit=False)
+    consumer = KafkaConsumer(topic, group_id='flasktoria0', bootstrap_servers=[kafka_bootstrap_server])#, auto_offset_reset='earliest', enable_auto_commit=False)
 
     for msg in consumer:
         bytes_reader = io.BytesIO(msg.value)
@@ -39,6 +39,7 @@ def start_kafka_consumer(msg_queue):
 def parse_gps_message(msg):
     value = msg['value']
     vehicle = msg['uuid']
+    #log.debug("msg: {}".format(msg))
     longitude, lat = value.replace('[', '').replace(']', '').split(',')
     return {
         "update_type": "position",

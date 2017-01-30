@@ -1,6 +1,6 @@
 {
-    "WS_URL": "ws://127.0.0.1:18081",
+    "WS_URL": "ws://flasktoria.docker:18081",
     "KAFKA_TOPIC": "flasktoria-test",
     "AVRO_SCHEMA_PATH": "schema/sensorRecord.avsc",
-    "KAFKA_BOOTSTRAP_SERVER": "127.0.0.1:9092"
+    "KAFKA_BOOTSTRAP_SERVER": "hostmachine.docker:9092"
 }

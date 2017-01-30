@@ -16,7 +16,7 @@ ssh -fN -i /keys/docker-user.pem \
 -o ProxyCommand='nc -X 5 -x localhost:49797 %h %p' \
 -L 9092:10.0.1.214:9092 \
 -L 2181:10.0.1.214:2181 \
-docker-user@10.0.1.214
+ubuntu@10.0.1.214
 
 # start the app
 cd /flasktoria
