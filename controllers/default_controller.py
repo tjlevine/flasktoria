@@ -1,18 +1,16 @@
 import json
 import logging
+import test_data
+from cfg import cfg
 
 log = logging.getLogger("flasktoria.rest")
 
-def load_data():
-    with open("data.json") as fin:
-        return json.load(fin)
-
-DATA = load_data()
+DATA = test_data.load_data()
 
 def map_get() -> str:
     return {
         "vehicles": list(DATA["VEHICLES"].values()),
-        "updateWebSocket": DATA["WS_URL"]
+        "updateWebSocket": cfg("WS_URL")
     }
 
 def cost_vehicle_id_get(vehicle_id) -> str:
