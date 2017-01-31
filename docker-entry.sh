@@ -1,23 +1,16 @@
 #!/usr/bin/env bash
 
-# set up socks proxy to the bastion node in background
-ssh -fN -i /keys/docker-user.pem \
--o StrictHostKeyChecking=no \
--A -D 49797 \
-docker-user@54.174.246.61
+# add the pnda-proxy container IP to /etc/hosts as pnda-clb-cluster-kafka-0
+# so that the broker bootstrap process can complete successfully
+ENT=$(getent hosts pnda-proxy | sed 's/pnda-proxy/pnda-clb-cluster-kafka-0/')
 
-# give time for the first ssh connection to be established
-sleep 2
-
-# setup tunnel to the kafka node
-ssh -fN -i /keys/docker-user.pem \
--o ExitOnForwardFailure=yes \
--o StrictHostKeyChecking=no \
--o ProxyCommand='nc -X 5 -x localhost:49797 %h %p' \
--L 9092:10.0.1.214:9092 \
--L 2181:10.0.1.214:2181 \
-ubuntu@10.0.1.214
+if [ -z "$ENT" ]; then
+    echo "Did not find address for pnda-proxy container, will not be able to connect to kafka"
+else
+    echo "Adding entry to /etc/hosts: $ENT"
+    echo $ENT >> /etc/hosts
+fi
 
 # start the app
 cd /flasktoria
-python3 app.py
+exec python3 app.py
