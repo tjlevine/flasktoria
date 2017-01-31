@@ -2,6 +2,9 @@
 
 import logging
 import multiprocessing
+import sys
+import signal
+import time
 
 
 def load_config():
@@ -47,18 +50,30 @@ def ws_server(wsctl_dict):
 # this is the main application entry point
 if __name__ == '__main__':
     # set all loggers to debug level by default
-    #logging.basicConfig(level=logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG)
+
+    log = logging.getLogger("flasktoria.main")
 
     # wsctl message queue for communication between ws process and rest process
     mgr = multiprocessing.Manager()
     wsctl_dict = mgr.dict()
 
-    logging.debug('Setting key "test" in wsctl_dict to "it\'s bad"')
-    wsctl_dict['test'] = "it's bad"
-
     # init and start the websocket process
     ws_process = multiprocessing.Process(target=ws_server, args=(wsctl_dict,))
     ws_process.start()
 
-    # now start the rest server in the current process
-    rest_server(wsctl_dict)
+    # now start the rest server in it's own process
+    rest_process = multiprocessing.Process(target=rest_server, args=(wsctl_dict,))
+    rest_process.start()
+
+    def sigterm_handler(signum, frame):
+        log.info("Got sigterm, exiting")
+        ws_process.terminate()
+        ws_process.join()
+        log.debug("WS process exited")
+        rest_process.terminate()
+        rest_process.join()
+        log.debug("REST process exited")
+
+    # set up a SIGTERM handler for quicker docker stops
+    signal.signal(signal.SIGTERM, sigterm_handler)

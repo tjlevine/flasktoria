@@ -25,7 +25,8 @@ def start_kafka_consumer(msg_queue):
 
     with open(avro_path) as fin:
         avro_schema = avro.schema.Parse(fin.read())
-    
+
+    log.debug("kafka bootstrap server: {}".format(kafka_bootstrap_server))
     consumer = KafkaConsumer(topic, group_id='flasktoria0', bootstrap_servers=[kafka_bootstrap_server])#, auto_offset_reset='earliest', enable_auto_commit=False)
 
     for msg in consumer:
@@ -64,6 +65,8 @@ def ws_main(wsctl_dict):
     import os
     import websockets
     import asyncio
+    import signal
+    import sys
 
     log.debug('in ws main (pid is {})'.format(os.getpid()))
 
@@ -74,6 +77,18 @@ def ws_main(wsctl_dict):
     kafka_process = multiprocessing.Process(target=start_kafka_consumer, args=(kafka_msg_queue,))
     kafka_process.start()
 
+    def sigterm_handler(signum, frame):
+        log.debug("WS server is shutting down")
+        kafka_process.terminate()
+        log.debug("kafka process terminated")
+        kafka_process.join()
+        log.debug("kafka process joined")
+        asyncio.get_event_loop().stop()
+        log.debug("asyncio event loop stopped")
+        sys.exit(0)
+
+    signal.signal(signal.SIGTERM, sigterm_handler)
+
     # read config to find host and port to set up ws server on
     _, _, port = cfg('WS_URL').split(':')
     host = "0.0.0.0"
@@ -81,8 +96,10 @@ def ws_main(wsctl_dict):
 
     # define our emit loop as a closure so we can access wsctl_dict
     async def emit_loop(ws, path):
+        log.debug("entering event loop")
         while True:
             #updates = test_data.get_test_updates()
+            log.debug("Checking for updates")
             updates = get_kafka_updates(kafka_msg_queue)
             if len(updates) > 0:
                 log.debug("emitting {} updates".format(len(updates)))
