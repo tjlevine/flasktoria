@@ -52,7 +52,37 @@
         }
     },
     "COSTS": {
-        "10000000-0000-0000-0000-000000000000": {
+        "VEHICLE-0": {
+            "cost_index": {
+                "day": {
+                    "value": 0.02,
+                    "why": "This is a placeholder for daily cost justification"
+                },
+                "week": {
+                    "value": 0.03,
+                    "why": "This is a placeholder for weekly cost justification"
+                },
+                "month": {
+                    "value": 0.04,
+                    "why": "This is a placeholder for monthly cost justification"
+                }
+            },
+            "efficiency_index": {
+                "day": {
+                    "value": 0.07,
+                    "why": "This is a placeholder for daily efficiency justification"
+                },
+                "week": {
+                    "value": 0.08,
+                    "why": "This is a placeholder for weekly efficiency justification"
+                },
+                "month": {
+                    "value": 0.09,
+                    "why": "This is a placeholder for monthly efficiency justification"
+                }
+            }
+        },
+        "VEHICLE-1": {
             "cost_index": {
                 "day": {
                     "value": 0.12,
@@ -82,7 +112,7 @@
                 }
             }
         },
-        "20000000-0000-0000-0000-000000000000": {
+        "VEHICLE-2": {
             "cost_index": {
                 "day": {
                     "value": 0.22,
@@ -112,7 +142,7 @@
                 }
             }
         },
-        "30000000-0000-0000-0000-000000000000": {
+        "VEHICLE-3": {
             "cost_index": {
                 "day": {
                     "value": 0.32,
@@ -142,7 +172,7 @@
                 }
             }
         },
-        "40000000-0000-0000-0000-000000000000": {
+        "VEHICLE-4": {
             "cost_index": {
                 "day": {
                     "value": 0.42,
@@ -172,7 +202,7 @@
                 }
             }
         },
-        "50000000-0000-0000-0000-000000000000": {
+        "VEHICLE-5": {
             "cost_index": {
                 "day": {
                     "value": 0.52,
@@ -201,42 +231,141 @@
                     "why": "This is a placeholder for monthly efficiency justification"
                 }
             }
+        },
+        "VEHICLE-6": {
+            "cost_index": {
+                "day": {
+                    "value": 0.62,
+                    "why": "This is a placeholder for daily cost justification"
+                },
+                "week": {
+                    "value": 0.63,
+                    "why": "This is a placeholder for weekly cost justification"
+                },
+                "month": {
+                    "value": 0.64,
+                    "why": "This is a placeholder for monthly cost justification"
+                }
+            },
+            "efficiency_index": {
+                "day": {
+                    "value": 0.67,
+                    "why": "This is a placeholder for daily efficiency justification"
+                },
+                "week": {
+                    "value": 0.68,
+                    "why": "This is a placeholder for weekly efficiency justification"
+                },
+                "month": {
+                    "value": 0.69,
+                    "why": "This is a placeholder for monthly efficiency justification"
+                }
+            }
+        },
+        "VEHICLE-7": {
+            "cost_index": {
+                "day": {
+                    "value": 0.72,
+                    "why": "This is a placeholder for daily cost justification"
+                },
+                "week": {
+                    "value": 0.73,
+                    "why": "This is a placeholder for weekly cost justification"
+                },
+                "month": {
+                    "value": 0.74,
+                    "why": "This is a placeholder for monthly cost justification"
+                }
+            },
+            "efficiency_index": {
+                "day": {
+                    "value": 0.77,
+                    "why": "This is a placeholder for daily efficiency justification"
+                },
+                "week": {
+                    "value": 0.78,
+                    "why": "This is a placeholder for weekly efficiency justification"
+                },
+                "month": {
+                    "value": 0.79,
+                    "why": "This is a placeholder for monthly efficiency justification"
+                }
+            }
+        },
+        "VEHICLE-8": {
+            "cost_index": {
+                "day": {
+                    "value": 0.82,
+                    "why": "This is a placeholder for daily cost justification"
+                },
+                "week": {
+                    "value": 0.83,
+                    "why": "This is a placeholder for weekly cost justification"
+                },
+                "month": {
+                    "value": 0.84,
+                    "why": "This is a placeholder for monthly cost justification"
+                }
+            },
+            "efficiency_index": {
+                "day": {
+                    "value": 0.87,
+                    "why": "This is a placeholder for daily efficiency justification"
+                },
+                "week": {
+                    "value": 0.88,
+                    "why": "This is a placeholder for weekly efficiency justification"
+                },
+                "month": {
+                    "value": 0.89,
+                    "why": "This is a placeholder for monthly efficiency justification"
+                }
+            }
+        },
+        "VEHICLE-9": {
+            "cost_index": {
+                "day": {
+                    "value": 0.92,
+                    "why": "This is a placeholder for daily cost justification"
+                },
+                "week": {
+                    "value": 0.93,
+                    "why": "This is a placeholder for weekly cost justification"
+                },
+                "month": {
+                    "value": 0.94,
+                    "why": "This is a placeholder for monthly cost justification"
+                }
+            },
+            "efficiency_index": {
+                "day": {
+                    "value": 0.97,
+                    "why": "This is a placeholder for daily efficiency justification"
+                },
+                "week": {
+                    "value": 0.98,
+                    "why": "This is a placeholder for weekly efficiency justification"
+                },
+                "month": {
+                    "value": 0.99,
+                    "why": "This is a placeholder for monthly efficiency justification"
+                }
+            }
         }
     },
-    "SENSORS": [
-        {
-            "sensor_id": "0",
-            "sensor_name": "Speed"
-        },
-        {
-            "sensor_id": "1",
-            "sensor_name": "Brake Pressure"
-        },
-        {
-            "sensor_id": "2",
-            "sensor_name": "Ambient Temperature"
-        },
-        {
-            "sensor_id": "3",
-            "sensor_name": "Tire Pressure"
-        },
-        {
-            "sensor_id": "4",
-            "sensor_name": "Engine Temperature"
-        },
-        {
-            "sensor_id": "5",
-            "sensor_name": "Fuel Level"
-        },
-        {
-            "sensor_id": "6",
-            "sensor_name": "Steering"
-        },
-        {
-            "sensor_id": "7",
-            "sensor_name": "Throttle Position"
-        }
-    ],
+    "SENSORS": {
+        "pid_5_mode_1": "Engine Coolant Temperature",
+        "pid_12_mode_1": "Engine RPM",
+        "pid_13_mode_1": "Vehicle Speed",
+        "pid_47_mode_1": "Fuel Level",
+        "pid_70_mode_1": "Ambient Air Temperature",
+        "pid_200_mode_1": "Gear Selection",
+        "pid_201_mode_1": "Left Front Tire Pressure",
+        "pid_202_mode_1": "Right Front Tire Pressure",
+        "pid_203_mode_1": "Right Rear Tire Pressure",
+        "pid_204_mode_1": "Left Rear Tire Pressure",
+        "pid_205_mode_1": "Braking Force"
+    },
     "SENSORDATA": {},
     "ANOMALIES": [
         {

@@ -25,20 +25,19 @@ def map_get() -> str:
         "updateWebSocket": cfg("WS_URL")
     }
 
-    #return {
-    #    "vehicles": list(DATA["VEHICLES"].values()),
-    #    "updateWebSocket": cfg("WS_URL")
-    #}
-
 def cost_vehicle_id_get(vehicle_id) -> str:
     return DATA["COSTS"][vehicle_id]
 
 def vehicle_vehicle_id_get(vehicle_id) -> str:
     vehicle = DATA["VEHICLES"][vehicle_id]
+    sensors = DATA["SENSORS"]
     return {
-        "name": vehicle['name'],
+        "name": vehicle_id,
         "status": vehicle['status'],
-        "sensors": DATA["SENSORS"],
+        "sensors": [{
+            "sensor_id": sid,
+            "sensor_name": sname
+        } for sid, sname in sensors.items()],
         "sensordata": {
             "fuel": [
                 {
