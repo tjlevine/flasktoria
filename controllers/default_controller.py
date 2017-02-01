@@ -1,6 +1,7 @@
 import json
 import logging
 import test_data
+import victoria_db
 from cfg import cfg
 
 log = logging.getLogger("flasktoria.rest")
@@ -8,10 +9,26 @@ log = logging.getLogger("flasktoria.rest")
 DATA = test_data.load_data()
 
 def map_get() -> str:
+    vehicle_ids = victoria_db.get_all_vehicle_uuids()
+
     return {
-        "vehicles": list(DATA["VEHICLES"].values()),
+        "vehicles": {
+            vid: {
+                "name": vid,
+                "id": vid,
+                "lat": DATA["VEHICLES"][vid]["lat"],
+                "long": DATA["VEHICLES"][vid]["long"],
+                "status": DATA["VEHICLES"][vid]["status"]
+            }
+            for vid in vehicle_ids
+        },
         "updateWebSocket": cfg("WS_URL")
     }
+
+    #return {
+    #    "vehicles": list(DATA["VEHICLES"].values()),
+    #    "updateWebSocket": cfg("WS_URL")
+    #}
 
 def cost_vehicle_id_get(vehicle_id) -> str:
     return DATA["COSTS"][vehicle_id]
