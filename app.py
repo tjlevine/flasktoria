@@ -50,7 +50,7 @@ def ws_server(wsctl_dict):
 # this is the main application entry point
 if __name__ == '__main__':
     # set all loggers to debug level by default
-    logging.basicConfig(level=logging.DEBUG)
+    #logging.basicConfig(level=logging.DEBUG)
 
     log = logging.getLogger("flasktoria.main")
 
