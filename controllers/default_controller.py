@@ -95,7 +95,13 @@ def sensordata_vehicle_id_get(vehicle_id, sensor_ids, start_ts, end_ts = None) -
     if start_ts < cutoff_ts and end_ts <= cutoff_ts:
         # request can be serviced entirely from the db
         sensor_data = victoria_db.get_sensor_data_for_vehicle()
-    elif start_ts < cutoff_ts and end_ts > cutoff_ts
+    elif start_ts < cutoff_ts and end_ts > cutoff_ts:
+        # end ts is after cutoff, need to get some data from kafka cache
+        pass
+    else:
+        # both start and end are after cutoff, but before curtime
+        # so we must get all data from kafka cache
+        pass
 
     ret = {
         sensor_id: [
