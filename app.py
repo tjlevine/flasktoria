@@ -6,12 +6,10 @@ import sys
 import signal
 import time
 
-
 def load_config():
     from json import load
     with open("config.json") as fin:
         return load(fin)
-
 
 # this is the entry point for the rest server
 def rest_server(wsctl_dict):

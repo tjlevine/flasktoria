@@ -52,6 +52,36 @@
         }
     },
     "COSTS": {
+        "GLOBAL": {
+            "cost_index": {
+                "day": {
+                    "value": 99.02,
+                    "why": "This is a placeholder for daily cost justification"
+                },
+                "week": {
+                    "value": 99.03,
+                    "why": "This is a placeholder for weekly cost justification"
+                },
+                "month": {
+                    "value": 99.04,
+                    "why": "This is a placeholder for monthly cost justification"
+                }
+            },
+            "efficiency_index": {
+                "day": {
+                    "value": 99.07,
+                    "why": "This is a placeholder for daily efficiency justification"
+                },
+                "week": {
+                    "value": 99.08,
+                    "why": "This is a placeholder for weekly efficiency justification"
+                },
+                "month": {
+                    "value": 99.09,
+                    "why": "This is a placeholder for monthly efficiency justification"
+                }
+            }
+        },
         "VEHICLE-0": {
             "cost_index": {
                 "day": {

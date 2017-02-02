@@ -1,3 +1,8 @@
+import logging
+
+log = logging.getLogger("flasktoria.test-data")
+log.setLevel(logging.DEBUG)
+
 def load_data():
     from json import load
     with open("data.json") as fin:
@@ -123,3 +128,40 @@ def get_test_updates():
         updates.append(gen_sensor_status())
     
     return updates
+
+DATA = load_data()
+
+def vehicle(vehicle_id):
+    if has_vehicle(vehicle_id):
+        return DATA['VEHICLES'][vehicle_id]
+
+def has_vehicle(vehicle_id):
+    if 'VEHICLES' not in DATA:
+        log.warn('Vehicles key is not in test data!')
+        return
+
+    if vehicle_id in DATA['VEHICLES']:
+        return True
+    else:
+        log.warn('Vehicle id {} is not present in vehicle test data!'.format(vehicle_id))
+        return False
+
+def cost(vehicle_id):
+    if 'COSTS' not in DATA:
+        log.warn('costs key is not in test data!')
+        return
+    
+    # global vehicle ID means return global cost values
+    if vehicle_id == 'global':
+        return DATA['COSTS']['GLOBAL']
+    
+    if vehicle_id in DATA['COSTS']:
+        return DATA['COSTS'][vehicle_id]
+    else:
+        log.warn('Vehicle id {} not present in costs test data!'.format(vehicle_id))
+
+def sensors():
+    return DATA['SENSORS']
+
+def anomalies():
+    return DATA['ANOMALIES']
