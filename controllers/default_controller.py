@@ -67,13 +67,35 @@ def vehicle_vehicle_id_get(vehicle_id) -> str:
     }
 
 def anomalies_get(start_ts, end_ts = None) -> str:
+    curtime = int(round(time.time() * 1000))
+
+    if end_ts is None:
+        log.debug("End timestamp is none, using curtime as end timestamp")
+        end_ts = curtime
+
+    if start_ts > curtime:
+        log.warn("Start timestamp ({}) is greater than current time ({}), no data will be returned")
+        return {}
+    
+    if start_ts >= end_ts:
+        log.warn("Invalid timestamp range. Start ts ({}) is >= end ts ({})".format(start_ts, end_ts))
+    
+    if end_ts > curtime:
+        log.warn("End timestamp ({}) is greater than current time ({}), using current time as end timestamp")
+        end_ts = curtime
+
     # start ts and end ts are currently ignored, this will be fixed
     return test_data.anomalies()
 
 def sensordata_vehicle_id_get(vehicle_id, sensor_ids, start_ts, end_ts = None) -> str:
+    log.warn("sensor data called with vehicle: {}, sensor_ids: {}, start_ts: {}, end_ts: {}".format(vehicle_id, sensor_ids, start_ts, end_ts))
+
+    if not test_data.has_vehicle(vehicle_id):
+        return {}, 400
+
     curtime = int(round(time.time() * 1000))
 
-    sensors = test_data.sensors()
+    sensor_ids = sensor_ids.split(',')
 
     if end_ts is None:
         log.debug("End timestamp is none, using curtime as end timestamp")
@@ -92,25 +114,18 @@ def sensordata_vehicle_id_get(vehicle_id, sensor_ids, start_ts, end_ts = None) -
 
     cutoff_ts = curtime - 2 * 60 * 1000
 
-    if start_ts < cutoff_ts and end_ts <= cutoff_ts:
+    #if start_ts < cutoff_ts and end_ts <= cutoff_ts:
         # request can be serviced entirely from the db
-        sensor_data = victoria_db.get_sensor_data_for_vehicle(vehicle_id, sensor_ids, start_ts, end_ts)
-    elif start_ts < cutoff_ts and end_ts > cutoff_ts:
+    sensor_data = victoria_db.get_sensor_data_for_vehicle(vehicle_id, sensor_ids, start_ts, end_ts)
+    #elif start_ts < cutoff_ts and end_ts > cutoff_ts:
         # end ts is after cutoff, need to get some data from kafka cache
-        pass
-    else:
+        #pass
+    #else:
         # both start and end are after cutoff, but before curtime
         # so we must get all data from kafka cache
-        pass
+        #pass
 
-    ret = {
-        sensor_id: [
-            
-        ]
-        for sensor_id in sensors.keys()
-    }
-
-    return ret
+    return sensor_data
         
     # arguments are currently ignored, this will be fixed
     #return {

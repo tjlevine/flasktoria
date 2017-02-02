@@ -1,4 +1,5 @@
 import logging
+import json
 import time
 import impala
 import impala.dbapi
@@ -56,7 +57,15 @@ def get_sensor_data_for_vehicle(vehicle_id, sensor_ids, start_ts, end_ts):
             'WHERE (uuid=\'{}\' AND sensor IN ({}) AND (`timestamp` BETWEEN {} AND {})) '
     query = query.format(vehicle_id, sensor_ids_query_string(sensor_ids), start_ts, end_ts)
     run_query(query, cursor)
-    return cursor.fetchall() 
+    ret = {}
+    for val_json, sensor, ts in cursor.fetchall():
+        if sensor not in ret:
+            ret[sensor] = []
+        ret[sensor].append({
+            'value': json.loads(val_json)['value'],
+            'timestamp': ts
+        })
+    return ret
 
 def get_recent_sensor_data_for_vehicle(vehicle_id):
     sensors = [
