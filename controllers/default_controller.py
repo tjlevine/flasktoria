@@ -6,6 +6,17 @@ import victoria_db
 from cfg import cfg
 
 log = logging.getLogger("flasktoria.rest")
+log.setLevel(logging.DEBUG)
+
+WSCTL_DICT = None
+KAFKA_MSGS = None
+
+def init_controller(kafka_msgs, wsctl_dict):
+    global WSCTL_DICT, KAFKA_MSGS
+    log.info("default controller init")
+
+    KAFKA_MSGS = kafka_msgs
+    WSCTL_DICT = wsctl_dict
 
 def map_get() -> str:
     vehicle_ids = victoria_db.get_all_vehicle_uuids()
@@ -37,6 +48,34 @@ def vehicle_vehicle_id_get(vehicle_id) -> str:
         return {}, 400
 
     vehicle = test_data.vehicle(vehicle_id)
+    curtime = int(round(time.time() * 1000))
+
+    def filter_fn(msg):
+        ts, val = msg
+
+        # remove elements without a vehicle id
+        if 'vehicle_id' not in val:
+            return False
+
+        # remove elements without a sensor field
+        if 'sensor' not in val:
+            return False
+
+        # remove elements with a timestamp greater than 1 min ago
+        if curtime - ts > 60 * 1000:
+            return False
+
+        # remove elements which are not from this vehicle
+        if val['vehicle_id'] != vehicle_id:
+            return False
+
+        # remove elements for sensors which are not fuel or speed
+        if val['sensor'] not in ['pid_13_mode_1', 'pid_47_mode_1']:
+            return False
+
+    recent_data = list(KAFKA_MSGS)
+    recent_data = filter(filter_fn, recent_data)
+
     return {
         "name": vehicle_id,
         "status": vehicle['status'],
@@ -46,23 +85,24 @@ def vehicle_vehicle_id_get(vehicle_id) -> str:
         } for sid, sname in test_data.sensors().items()],
         "sensordata": {
             "fuel": [
+                # get most recent 60s of data from kafka cache
                 {
-                    "timestamp": 1484259815937,
-                    "value": 0.31
+                    "timestamp": msg['timestamp'],
+                    "value": json.loads(msg['value'])['value']
                 }
+                for msg in filter(lambda msg: msg[1]['sensor'] == 'pid_47_mode_1', recent_data)
             ],
             "speed": [
+                # get most recent 60s of data from kafka cache
                 {
-                    "timestamp": 1484259815937,
-                    "value": 22.4
+                    "timestamp": msg['timestamp'],
+                    "value": json.loads(msg['value'])['value']
                 }
+                for msg in filter(lambda msg: msg[1]['sensor'] == 'pid_13_mode_1', recent_data)
             ],
-            "kpi": [
-                {
-                    "timestamp": 1484259815937,
-                    "value": 0
-                }
-            ]
+            # no clue what KPI really means, and nobody seems to want to define this
+            # just going to return an empty array
+            "kpi": []
         }
     }
 
@@ -73,13 +113,27 @@ def anomalies_get(start_ts, end_ts = None) -> str:
         log.debug("End timestamp is none, using curtime as end timestamp")
         end_ts = curtime
 
+
+    try:
+        start_ts = int(start_ts)
+    except ValueError:
+        log.warn("Bad start timestamp ({}), must be an integer".format(start_ts))
+        return {}, 400
+
+    try:
+        end_ts = int(end_ts)
+    except ValueError:
+        log.warn("Bad end timestamp ({}), must be an integer".format(end_ts))
+        return {}, 400
+
     if start_ts > curtime:
         log.warn("Start timestamp ({}) is greater than current time ({}), no data will be returned")
         return {}
-    
+
     if start_ts >= end_ts:
         log.warn("Invalid timestamp range. Start ts ({}) is >= end ts ({})".format(start_ts, end_ts))
-    
+        return {}, 400
+
     if end_ts > curtime:
         log.warn("End timestamp ({}) is greater than current time ({}), using current time as end timestamp")
         end_ts = curtime
@@ -88,7 +142,7 @@ def anomalies_get(start_ts, end_ts = None) -> str:
     return test_data.anomalies()
 
 def sensordata_vehicle_id_get(vehicle_id, sensor_ids, start_ts, end_ts = None) -> str:
-    log.warn("sensor data called with vehicle: {}, sensor_ids: {}, start_ts: {}, end_ts: {}".format(vehicle_id, sensor_ids, start_ts, end_ts))
+    log.info("sensor data called with vehicle: {}, sensor_ids: {}, start_ts: {}, end_ts: {}".format(vehicle_id, sensor_ids, start_ts, end_ts))
 
     if not test_data.has_vehicle(vehicle_id):
         return {}, 400
@@ -100,6 +154,18 @@ def sensordata_vehicle_id_get(vehicle_id, sensor_ids, start_ts, end_ts = None) -
     if end_ts is None:
         log.debug("End timestamp is none, using curtime as end timestamp")
         end_ts = curtime
+
+    try:
+        start_ts = int(start_ts)
+    except ValueError:
+        log.warn("Bad start timestamp ({}), must be an integer".format(start_ts))
+        return {}, 400
+
+    try:
+        end_ts = int(end_ts)
+    except ValueError:
+        log.warn("Bad end timestamp ({}), must be an integer".format(end_ts))
+        return {}, 400
 
     if start_ts > curtime:
         log.warn("Start timestamp ({}) is greater than current time ({}), no data will be returned")
@@ -126,60 +192,46 @@ def sensordata_vehicle_id_get(vehicle_id, sensor_ids, start_ts, end_ts = None) -
         #pass
 
     return sensor_data
-        
-    # arguments are currently ignored, this will be fixed
-    #return {
-    #    "sensor0": [
-    #        {
-    #            "timestamp": 1484259815937,
-    #            "value": 0
-    #        }
-    #    ],
-    #    "sensor1": [
-    #        {
-    #            "timestamp": 1484259815937,
-    #            "value": 0
-    #        }
-    #    ],
-    #    "sensor2": [
-    #        {
-    #            "timestamp": 1484259815937,
-    #            "value": 0
-    #        }
-    #    ],
-    #    "sensor3": [
-    #        {
-    #            "timestamp": 1484259815937,
-    #            "value": 0
-    #        }
-    #    ],
-    #    "sensor4": [
-    #        {
-    #            "timestamp": 1484259815937,
-    #            "value": 0
-    #        }
-    #    ],
-    #    "sensor5": [
-    #        {
-    #            "timestamp": 1484259815937,
-    #            "value": 0
-    #        }
-    #    ],
-    #    "sensor6": [
-    #        {
-    #            "timestamp": 1484259815937,
-    #            "value": 0
-    #        }
-    #    ],
-    #    "sensor7": [
-    #        {
-    #            "timestamp": 1484259815937,
-    #            "value": 0
-    #        }
-    #    ]
-    #}
 
 def wsctl_post(wsctl) -> str:
+    for wsctl_msg in wsctl:
+        for field in ['action', 'update_type', 'vehicle_id', 'sensor_id']:
+            if field not in wsctl_msg:
+                log.warn("Required field {} missing from wsctl_msg request object {}".format(field, wsctl_msg))
+                return { "success": False }, 400
+
+        action = wsctl_msg['action']
+        update_type = wsctl_msg['update_type']
+        vehicle_id = wsctl_msg['vehicle_id']
+        sensor_id = wsctl_msg['sensor_id']
+
+        if action not in ['start', 'stop']:
+            log.warn("Bad value for wsctl_msg action ({}), must be either 'start' or 'stop'".format(action))
+            return { "success": False }, 400
+
+        if update_type not in ['position', 'sensordata', 'sensorstatus']:
+            log.warn("Bad value for wsctl_msg update type ({}), must be one of 'position', 'sensordata' or 'sensorstatus'".format(update_type))
+            return { "success": False }, 400
+
+        if not test_data.has_vehicle(vehicle_id):
+            log.warn("Invalid vehicle id in wsctl_msg update ({})".format(vehicle_id))
+            return { "success": False }, 400
+
+        if not test_data.has_sensor(sensor_id):
+            if not (update_type == 'position' and sensor_id == ''):
+                log.warn("Invalid sensor id in wsctl_msg update ({})".format(sensor_id))
+                return { "success": False }, 400
+
+        if action == 'start':
+            log.info('starting ws messages for update type {} on vehicle {}, sensor {}'.format(update_type, vehicle_id, sensor_id))
+            key = update_type + '#' + vehicle_id + '#' + sensor_id
+            if key in WSCTL_DICT:
+                del WSCTL_DICT[key]
+        else:
+            log.info('stopping ws messages for update type {} on vehicle {}, sensor {}'.format(update_type, vehicle_id, sensor_id))
+            key = update_type + '#' + vehicle_id + '#' + sensor_id
+            WSCTL_DICT[update_type + '#' + vehicle_id + '#' + sensor_id] = True
+
     return {
         "success": True
     }

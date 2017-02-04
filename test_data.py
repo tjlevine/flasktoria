@@ -163,5 +163,8 @@ def cost(vehicle_id):
 def sensors():
     return DATA['SENSORS']
 
+def has_sensor(sensor_id):
+    return sensor_id in DATA['SENSORS'].keys()
+
 def anomalies():
     return DATA['ANOMALIES']

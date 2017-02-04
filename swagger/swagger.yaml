@@ -24,13 +24,13 @@ paths:
         in: "query"
         description: "Timestamp of the start of the desired data range"
         required: true
-        type: "integer"
+        type: "string"
       - name: "end_ts"
         in: "query"
         description: "Timestamp of the end of the desired data range, or current server\
           \ timestamp if omitted"
         required: false
-        type: "integer"
+        type: "string"
       responses:
         200:
           description: "TBD"
@@ -103,13 +103,13 @@ paths:
         in: "query"
         description: "Timestamp of the start of the desired data range"
         required: true
-        type: "integer"
+        type: "string"
       - name: "end_ts"
         in: "query"
         description: "Timestamp of the end of the desired data range, or current server\
           \ timestamp if omitted"
         required: false
-        type: "integer"
+        type: "string"
       responses:
         200:
           description: "Successfully retrieved the sensor data for the specified sensors"
@@ -259,10 +259,10 @@ definitions:
         type: "string"
         description: "The vehicle on which the anomaly occured"
       declared_timestamp:
-        type: "integer"
+        type: "string"
         description: "The time at which the anomaly was declared"
       detection_timestamp:
-        type: "integer"
+        type: "string"
         description: "The time at which the anomaly was initially detected"
       cause:
         type: "string"
@@ -346,10 +346,10 @@ definitions:
         description: "The cost impact of the anomaly, in terms of the cost/efficiency\
           \ indices"
       declared_timestamp:
-        type: "integer"
+        type: "string"
         description: "The time at which the anomaly was declared"
       detection_timestamp:
-        type: "integer"
+        type: "string"
         description: "The time at which the anomaly was detected"
       cause:
         type: "string"

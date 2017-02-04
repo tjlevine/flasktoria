@@ -39,7 +39,7 @@ def get_sensors_for_vehicle(vehicle_id):
     return sensors
 
 
-def sensor_ids_query_string(sensor_ids):
+def array_to_query_string(sensor_ids):
     result = ''
     sensor_ids = list(map(lambda s: "'{}'".format(s), sensor_ids))
     for sensor in sensor_ids[:len(sensor_ids) - 1]:
@@ -49,13 +49,12 @@ def sensor_ids_query_string(sensor_ids):
 
 
 def get_sensor_data_for_vehicle(vehicle_id, sensor_ids, start_ts, end_ts):
-    sensor_data = []
     # create the sensor id string which will go in the query
     cursor = get_cursor()
     query = 'SELECT value, sensor, `timestamp` ' \
             'FROM depa_raw ' \
             'WHERE (uuid=\'{}\' AND sensor IN ({}) AND (`timestamp` BETWEEN {} AND {})) '
-    query = query.format(vehicle_id, sensor_ids_query_string(sensor_ids), start_ts, end_ts)
+    query = query.format(vehicle_id, array_to_query_string(sensor_ids), start_ts, end_ts)
     run_query(query, cursor)
     ret = {}
     for val_json, sensor, ts in cursor.fetchall():
@@ -77,6 +76,13 @@ def get_recent_sensor_data_for_vehicle(vehicle_id):
     data = get_sensor_data_for_vehicle(vehicle_id, sensors, start_time, cur_time)
     return data
 
-def get_anomalies(start_ts, end_ts):
+def get_anomalies(vehicle_ids, start_ts, end_ts):
     # need anomalies table exposed to impala
-    pass
+    cursor = get_cursor()
+    query = 'SELECT `timestamp`, detection_time, confirmation_time, sensor, uuid, anomaly_id ' \
+            'FROM anomaly ' \
+            'WHERE (uuid IN (\'{}\') AND (`timestamp` BETWEEN {} AND {})) '
+    query = query.format(array_to_query_string(vehicle_ids), start_ts, end_ts)
+    run_query(query, cursor)
+    data = cursor.fetchall()
+    return data
