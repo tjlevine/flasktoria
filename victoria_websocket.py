@@ -170,7 +170,6 @@ def ws_main(wsctl_dict, kafka_rest_msgs):
         log.debug("entering event loop")
         while True:
             #updates = test_data.get_test_updates()
-            log.debug("Checking for updates")
             updates = get_kafka_updates(kafka_msg_queue)
             if len(updates) > 0:
                 #kafka_cache.add_entries(updates)

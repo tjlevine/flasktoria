@@ -4,6 +4,8 @@ import time
 import impala
 import impala.dbapi
 
+import anomalies
+
 log = logging.getLogger('flasktoria.db')
 log.setLevel(logging.DEBUG)
 
@@ -76,13 +78,19 @@ def get_recent_sensor_data_for_vehicle(vehicle_id):
     data = get_sensor_data_for_vehicle(vehicle_id, sensors, start_time, cur_time)
     return data
 
-def get_anomalies(vehicle_ids, start_ts, end_ts):
-    # need anomalies table exposed to impala
+def get_anomalies(start_ts, end_ts):
     cursor = get_cursor()
     query = 'SELECT `timestamp`, detection_time, confirmation_time, sensor, uuid, anomaly_id ' \
             'FROM anomaly ' \
-            'WHERE (uuid IN (\'{}\') AND (`timestamp` BETWEEN {} AND {})) '
-    query = query.format(array_to_query_string(vehicle_ids), start_ts, end_ts)
+            'WHERE (`timestamp` BETWEEN {} AND {}) ' \
+            'ORDER BY `timestamp` DESC'
+    query = query.format(start_ts, end_ts)
     run_query(query, cursor)
     data = cursor.fetchall()
-    return data
+
+    ret = []
+
+    for ts, detection_ts, confirm_ts, sensor_list, uuid, anomaly_id in data:
+        # build the anomaly object and add it to the return list
+        ret.append(anomalies.create_from_template(anomaly_id, uuid, detection_ts, confirm_ts))
+    return ret

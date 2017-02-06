@@ -113,7 +113,6 @@ def anomalies_get(start_ts, end_ts = None) -> str:
         log.debug("End timestamp is none, using curtime as end timestamp")
         end_ts = curtime
 
-
     try:
         start_ts = int(start_ts)
     except ValueError:
@@ -127,19 +126,19 @@ def anomalies_get(start_ts, end_ts = None) -> str:
         return {}, 400
 
     if start_ts > curtime:
-        log.warn("Start timestamp ({}) is greater than current time ({}), no data will be returned")
-        return {}
+        log.warn("Start timestamp ({}) is greater than current time ({}), no data will be returned".format(start_ts, curtime))
+        return {}, 400
 
     if start_ts >= end_ts:
         log.warn("Invalid timestamp range. Start ts ({}) is >= end ts ({})".format(start_ts, end_ts))
         return {}, 400
 
     if end_ts > curtime:
-        log.warn("End timestamp ({}) is greater than current time ({}), using current time as end timestamp")
+        log.warn("End timestamp ({}) is greater than current time ({}), using current time as end timestamp".format(end_ts, curtime))
         end_ts = curtime
 
     # start ts and end ts are currently ignored, this will be fixed
-    return test_data.anomalies()
+    return victoria_db.get_anomalies(start_ts, end_ts)
 
 def sensordata_vehicle_id_get(vehicle_id, sensor_ids, start_ts, end_ts = None) -> str:
     log.info("sensor data called with vehicle: {}, sensor_ids: {}, start_ts: {}, end_ts: {}".format(vehicle_id, sensor_ids, start_ts, end_ts))
@@ -166,16 +165,17 @@ def sensordata_vehicle_id_get(vehicle_id, sensor_ids, start_ts, end_ts = None) -
     except ValueError:
         log.warn("Bad end timestamp ({}), must be an integer".format(end_ts))
         return {}, 400
-
-    if start_ts > curtime:
-        log.warn("Start timestamp ({}) is greater than current time ({}), no data will be returned")
-        return {}
     
     if start_ts >= end_ts:
         log.warn("Invalid timestamp range. Start ts ({}) is >= end ts ({})".format(start_ts, end_ts))
+        return {}, 400
+
+    if start_ts > curtime:
+        log.warn("Start timestamp ({}) is greater than current time ({}), no data will be returned".format(start_ts, curtime))
+        return {}, 400
     
     if end_ts > curtime:
-        log.warn("End timestamp ({}) is greater than current time ({}), using current time as end timestamp")
+        log.warn("End timestamp ({}) is greater than current time ({}), using current time as end timestamp".format(end_ts, curtime))
         end_ts = curtime
 
     cutoff_ts = curtime - 2 * 60 * 1000
