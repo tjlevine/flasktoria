@@ -5,7 +5,6 @@ import multiprocessing
 import sys
 import signal
 import time
-import kafka_cache
 
 def load_config():
     from json import load
