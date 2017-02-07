@@ -10,6 +10,8 @@
 		{ "name": "sensor", "type": "string" },
 		{ "name": "uuid", "type": "string" },
 		{ "name": "anomaly_id", "type": "int" },
-		{ "name": "src": "type": "string" }
+		{ "name": "rootCause", "type": "string"},
+		{ "name": "recommendation", "type": "string"},
+		{ "name": "src", "type": "string" }
 	]
 }
