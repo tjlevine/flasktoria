@@ -189,7 +189,7 @@ def ws_main(wsctl_dict, kafka_rest_msgs):
                 # filter out the messages we don't want to send over the websocket
                 updates = filter_suppressed_messages(wsctl_dict, updates)
 
-                messages = {"updates": updates}
+                messages = {"updates": list(updates)}
 
                 log.debug("Sending these messages over websocket:")
                 for message in messages:
