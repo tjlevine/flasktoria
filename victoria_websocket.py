@@ -48,7 +48,7 @@ def parse_gps_message(msg, wsctl_dict):
     longlat_pair = value
     longitude, lat = longlat_pair.split(',')
     try:
-        key = 'position#' + vehicle_id + '#'
+        key = 'position#' + vehicle + '#'
         wsctl_dict[key]
 
         # if we didn't get a KeyError from the line above, then
@@ -189,8 +189,14 @@ def ws_main(wsctl_dict, kafka_rest_msgs):
                 # filter out the messages we don't want to send over the websocket
                 updates = filter_suppressed_messages(wsctl_dict, updates)
 
+                messages = {"updates": updates}
+
+                log.debug("Sending these messages over websocket:")
+                for message in messages:
+                    log.debug(message)
+
                 # send the remaining messages over the websocket connection
-                await ws.send(json.dumps({"updates": updates}))
+                await ws.send(json.dumps(messages))
 
             await asyncio.sleep(1)
 
