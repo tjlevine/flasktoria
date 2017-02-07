@@ -215,6 +215,7 @@ def wsctl_post(wsctl) -> str:
 
         if not test_data.has_vehicle(vehicle_id):
             log.warn("Invalid vehicle id in wsctl_msg update ({})".format(vehicle_id))
+            
             return { "success": False }, 400
 
         if not test_data.has_sensor(sensor_id):

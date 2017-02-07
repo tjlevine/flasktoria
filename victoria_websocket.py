@@ -29,19 +29,49 @@ def start_kafka_consumer(msg_queue):
         avro_schema = avro.schema.Parse(fin.read())
 
     log.debug("kafka bootstrap server: {}".format(kafka_bootstrap_server))
-    consumer = KafkaConsumer(topic, group_id='flasktoria0', bootstrap_servers=[kafka_bootstrap_server])#, auto_offset_reset='earliest', enable_auto_commit=False)
+    consumer = KafkaConsumer(topic, group_id='test1', bootstrap_servers=[kafka_bootstrap_server])#, auto_offset_reset='earliest', enable_auto_commit=False)
 
     for msg in consumer:
-        bytes_reader = io.BytesIO(msg.value)
-        decoder = avro.io.BinaryDecoder(bytes_reader)
-        reader = avro.io.DatumReader(avro_schema)
-        record = reader.read(decoder)
-        #print("Received kafka message: {}".format(record))
-        msg_queue.put(record)
+        try:
+            bytes_reader = io.BytesIO(msg.value)
+            decoder = avro.io.BinaryDecoder(bytes_reader)
+            reader = avro.io.DatumReader(avro_schema)
+            record = reader.read(decoder)
+            #log.debug("Received kafka message: {}".format(record))
+            msg_queue.put(record)
+        except AssertionError:
+            log.warn("Got assertion error from avro decode on message: {}".format(msg))
+
+def start_anomaly_kafka_consumer(msg_queue):
+    from kafka import KafkaConsumer
+    import avro
+    import avro.schema
+    import avro.io
+    import io
+
+    topic = cfg("KAFKA_ANOMALY_TOPIC")
+    avro_path = cfg("AVRO_ANOMALY_SCHEMA_PATH")
+    kafka_bootstrap_server = cfg("KAFKA_BOOTSTRAP_SERVER")
+
+    with open(avro_path) as fin:
+        avro_schema = avro.schema.Parse(fin.read())
+
+    log.debug("kafka bootstrap server: {}".format(kafka_bootstrap_server))
+    consumer = KafkaConsumer(topic, group_id='test1', bootstrap_servers=[kafka_bootstrap_server])#, auto_offset_reset='earliest', enable_auto_commit=False)
+
+    for msg in consumer:
+        try:
+            bytes_reader = io.BytesIO(msg.value)
+            decoder = avro.io.BinaryDecoder(bytes_reader)
+            reader = avro.io.DatumReader(avro_schema)
+            record = reader.read(decoder)
+            log.debug("Received anomaly message: {}".format(record))
+            msg_queue.put(record)
+        except AssertionError:
+            log.warn("Got assertion error from avro decode on message: {}".format(msg))
 
 def parse_gps_message(msg, wsctl_dict):
     #value = json.loads(msg['value'])['value']
-    value: [lat, long]
     value = msg['value'].split(': ')[1].replace('[', '').replace(']', '')
     vehicle = msg['uuid']
     #log.debug("msg: {}".format(msg))
@@ -120,21 +150,27 @@ def get_kafka_updates(msg_queue):
             return updates
 
 def filter_suppressed_messages(wsctl_dict, updates):
-    updates = filter(lambda x: x is not None, updates)
+    updates = list(filter(lambda x: x is not None, updates))
     return updates
 
 def send_to_rest_process(updates, kafka_rest_msgs):
     # first, go through the existing list to remove expired entries
     curtime = int(round(time.time() * 1000))
 
+    for msg in updates:
+        log.debug("update msg: {}".format(msg))
+
+    for msg in kafka_rest_msgs:
+        log.debug("msg in cache: {}".format(msg))
+
     # filter out messages that are older than 3 minutes
-    stale_msgs = filter(lambda msg: curtime - msg[0] >= 1000 * 60 * 3, kafka_rest_msgs)
+    stale_msgs = filter(lambda msg: (curtime - msg[0]) >= (1000 * 60 * 3), kafka_rest_msgs)
 
     for msg in stale_msgs:
         kafka_rest_msgs.remove(msg)
 
     # add the new updates to the list shared with the rest process
-    kafka_rest_msgs.append(updates)
+    kafka_rest_msgs.extend(updates)
 
 def ws_main(wsctl_dict, kafka_rest_msgs):
     import os
@@ -148,9 +184,13 @@ def ws_main(wsctl_dict, kafka_rest_msgs):
     # start the kafka consumer process
     mgr = multiprocessing.Manager()
     kafka_msg_queue = mgr.Queue()
+    kafka_anomaly_queue = mgr.Queue()
 
     kafka_process = multiprocessing.Process(target=start_kafka_consumer, args=(kafka_msg_queue,))
     kafka_process.start()
+
+    kafka_anomaly_process = multiprocessing.Process(target=start_anomaly_kafka_consumer, args=(kafka_anomaly_queue,))
+    kafka_anomaly_process.start()
 
     def sigterm_handler(signum, frame):
         log.debug("WS server is shutting down")
@@ -175,6 +215,8 @@ def ws_main(wsctl_dict, kafka_rest_msgs):
         while True:
             #updates = test_data.get_test_updates()
             updates = get_kafka_updates(kafka_msg_queue)
+            updates += get_kafka_updates(kafka_anomaly_queue)
+
             if len(updates) > 0:
                 #kafka_cache.add_entries(updates)
                 log.debug("emitting {} updates".format(len(updates)))
@@ -183,16 +225,25 @@ def ws_main(wsctl_dict, kafka_rest_msgs):
                 bound_parse_fn = functools.partial(parse_kafka_message, wsctl_dict)
                 updates = list(map(bound_parse_fn, updates))
 
+                log.debug("Post parsing:")
+                for message in updates:
+                    log.debug(message)
+
                 # send all the messages to the rest server process
                 send_to_rest_process(updates, kafka_rest_msgs)
 
                 # filter out the messages we don't want to send over the websocket
                 updates = filter_suppressed_messages(wsctl_dict, updates)
 
-                messages = {"updates": list(updates)}
+                log.debug("Post filter:")
+                for message in updates:
+                    log.debug(message)
+                
+                updates = list(map(lambda m: m[1], updates))
+                messages = {"updates": updates}
 
                 log.debug("Sending these messages over websocket:")
-                for message in messages:
+                for message in updates:
                     log.debug(message)
 
                 # send the remaining messages over the websocket connection

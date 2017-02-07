@@ -27,6 +27,8 @@ def get_all_vehicle_uuids():
         vehicle_uuids.append(vehicle_uuid)
     return vehicle_uuids
 
+
+
 def get_latest_vehicle_positions(vehicle_ids):
     pass
 
@@ -40,7 +42,6 @@ def get_sensors_for_vehicle(vehicle_id):
         sensors.append(sensor)
     return sensors
 
-
 def array_to_query_string(sensor_ids):
     result = ''
     sensor_ids = list(map(lambda s: "'{}'".format(s), sensor_ids))
@@ -48,7 +49,6 @@ def array_to_query_string(sensor_ids):
         result += sensor + ', '
     result += sensor_ids[len(sensor_ids) - 1]
     return result
-
 
 def get_sensor_data_for_vehicle(vehicle_id, sensor_ids, start_ts, end_ts):
     # create the sensor id string which will go in the query
