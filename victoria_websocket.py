@@ -40,10 +40,13 @@ def start_kafka_consumer(msg_queue):
         msg_queue.put(record)
 
 def parse_gps_message(msg, wsctl_dict):
-    value = json.loads(msg['value'])['value']
+    #value = json.loads(msg['value'])['value']
+    value: [lat, long]
+    value = msg['value'].split(': ')[1].replace('[', '').replace(']', '')
     vehicle = msg['uuid']
     #log.debug("msg: {}".format(msg))
-    longitude, lat = value['lon'], value['lat']
+    longlat_pair = value
+    longitude, lat = longlat_pair.split(',')
     try:
         key = 'position#' + vehicle_id + '#'
         wsctl_dict[key]
@@ -61,7 +64,8 @@ def parse_gps_message(msg, wsctl_dict):
         }
 
 def parse_sensor_update(msg, wsctl_dict):
-    value = json.loads(msg['value'])['value']
+    #value = json.loads(msg['value'])['value']
+    value = msg['value'].split(': ')[1]
     vehicle_id = msg['uuid']
     sensor = msg['sensor']
 
