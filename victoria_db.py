@@ -5,12 +5,15 @@ import impala
 import impala.dbapi
 
 import anomalies
+from cfg import cfg
 
 log = logging.getLogger('flasktoria.db')
 log.setLevel(logging.DEBUG)
 
 def get_cursor():
-    conn = impala.dbapi.connect(host="pnda-proxy", port=21050)
+    host = cfg('DB_HOST')
+    port = cfg('DB_PORT')
+    conn = impala.dbapi.connect(host=host, port=port)
     return conn.cursor()
 
 def run_query(query, cursor):
