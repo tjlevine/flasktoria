@@ -118,7 +118,7 @@ def parse_sensor_update(msg, wsctl_dict):
 def parse_anomaly_message(msg):
     anomaly = anomalies.create_from_template(msg['anomaly_id'], msg['uuid'], msg['confirmation_time'], msg['detection_time'])
 
-    if anomaly_template is not None:
+    if anomaly is not None:
         anomaly['update_type'] = 'anomaly'
         return anomaly
     else:
@@ -157,11 +157,11 @@ def send_to_rest_process(updates, kafka_rest_msgs):
     # first, go through the existing list to remove expired entries
     curtime = int(round(time.time() * 1000))
 
-    for msg in updates:
-        log.debug("update msg: {}".format(msg))
+    #for msg in updates:
+        #log.debug("update msg: {}".format(msg))
 
-    for msg in kafka_rest_msgs:
-        log.debug("msg in cache: {}".format(msg))
+    #for msg in kafka_rest_msgs:
+        #log.debug("msg in cache: {}".format(msg))
 
     # filter out messages that are older than 3 minutes
     stale_msgs = filter(lambda msg: (curtime - msg[0]) >= (1000 * 60 * 3), kafka_rest_msgs)
