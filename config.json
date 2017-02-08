@@ -1,10 +1,10 @@
 {
-    "WS_URL": "ws://flasktoria.docker:18081",
+    "WS_URL": "ws://10.0.1.202:18081",
     "KAFKA_TOPIC": "flasktoria-test",
     "KAFKA_ANOMALY_TOPIC": "clb.demo.ml.anomaly",
     "AVRO_SCHEMA_PATH": "schema/sensorRecord.avsc",
     "AVRO_ANOMALY_SCHEMA_PATH": "schema/anomalyEvent.avsc",
-    "KAFKA_BOOTSTRAP_SERVER": "pnda-proxy:9092",
+    "KAFKA_BOOTSTRAP_SERVER": "pnda-clb-cluster-cdh-kafka-0:9092",
     "DB_HOST": "pnda-clb-cluster-cdh-dn-0",
     "DB_PORT": 21050
 }
