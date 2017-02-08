@@ -76,7 +76,7 @@ def parse_gps_message(msg, wsctl_dict):
     vehicle = msg['uuid']
     #log.debug("msg: {}".format(msg))
     longlat_pair = value
-    longitude, lat = longlat_pair.split(',')
+    lat, longitude = longlat_pair.split(',')
     try:
         key = 'position#' + vehicle + '#'
         wsctl_dict[key]
