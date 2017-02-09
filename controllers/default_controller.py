@@ -44,61 +44,32 @@ def cost_vehicle_id_get(vehicle_id) -> str:
         return {}, 400
 
 def vehicle_vehicle_id_get(vehicle_id) -> str:
-    if not test_data.has_vehicle(vehicle_id):
-        return {}, 400
-
     vehicle = test_data.vehicle(vehicle_id)
     curtime = int(round(time.time() * 1000))
-
-    def filter_fn(msg):
-        ts, val = msg
-
-        # remove elements without a vehicle id
-        if 'vehicle_id' not in val:
-            return False
-
-        # remove elements without a sensor field
-        if 'sensor' not in val:
-            return False
-
-        # remove elements with a timestamp greater than 1 min ago
-        if curtime - ts > 60 * 1000:
-            return False
-
-        # remove elements which are not from this vehicle
-        if val['vehicle_id'] != vehicle_id:
-            return False
-
-        # remove elements for sensors which are not fuel or speed
-        if val['sensor'] not in ['pid_13_mode_1', 'pid_47_mode_1']:
-            return False
-
-    recent_data = list(KAFKA_MSGS)
-    recent_data = filter(filter_fn, recent_data)
+    recent_data = victoria_db.get_recent_sensor_data_for_vehicle(vehicle_id)
 
     return {
         "name": vehicle_id,
-        "status": vehicle['status'],
+        # TODO: get actual vehicle status from database (how to determine active anomalies?)
+        "status": "ok",
         "sensors": [{
             "sensor_id": sid,
             "sensor_name": sname
         } for sid, sname in test_data.sensors().items()],
         "sensordata": {
             "fuel": [
-                # get most recent 60s of data from kafka cache
                 {
-                    "timestamp": msg['timestamp'],
-                    "value": json.loads(msg['value'])['value']
+                    "timestamp": msg[1]['timestamp'],
+                    "value": json.loads(msg[1]['value'])['value']
                 }
-                for msg in filter(lambda msg: msg[1]['sensor'] == 'pid_47_mode_1', recent_data)
+                for msg in filter(lambda msg: msg[0] == 'pid_47_mode_1', recent_data.values())
             ],
             "speed": [
-                # get most recent 60s of data from kafka cache
                 {
-                    "timestamp": msg['timestamp'],
-                    "value": json.loads(msg['value'])['value']
+                    "timestamp": msg[1]['timestamp'],
+                    "value": json.loads(msg[1]['value'])['value']
                 }
-                for msg in filter(lambda msg: msg[1]['sensor'] == 'pid_13_mode_1', recent_data)
+                for msg in filter(lambda msg: msg[0] == 'pid_13_mode_1', recent_data.values())
             ],
             # no clue what KPI really means, and nobody seems to want to define this
             # just going to return an empty array
