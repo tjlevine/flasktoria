@@ -60,14 +60,14 @@ def vehicle_vehicle_id_get(vehicle_id) -> str:
             "fuel": [
                 {
                     "timestamp": msg[1]['timestamp'],
-                    "value": json.loads(msg[1]['value'])['value']
+                    "value": msg[1]['value'].split(': ')[1]
                 }
                 for msg in filter(lambda msg: msg[0] == 'pid_47_mode_1', recent_data.items())
             ],
             "speed": [
                 {
                     "timestamp": msg[1]['timestamp'],
-                    "value": json.loads(msg[1]['value'])['value']
+                    "value": msg[1]['value'].split(': ')[1]
                 }
                 for msg in filter(lambda msg: msg[0] == 'pid_13_mode_1', recent_data.items())
             ],
