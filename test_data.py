@@ -168,3 +168,6 @@ def has_sensor(sensor_id):
 
 def anomalies():
     return DATA['ANOMALIES']
+
+def driver_name(vehicle_id):
+    return "DRIVER FOR {}".format(vehicle_id)

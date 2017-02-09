@@ -34,8 +34,17 @@ def get_all_vehicle_uuids():
         vehicle_uuids.append(vehicle_uuid)
     return vehicle_uuids
 
-def get_latest_vehicle_positions(vehicle_ids):
-    pass
+def get_map_data_for_vehicles(vehicle_ids):
+    ret = {}
+    cursor = get_cursor()
+    query = "select `timestamp`, sensor, uuid, value from sensor where sensor='gps_coordinates' order by `timestamp` desc limit 30"
+    for row in cursor:
+        ts, sensor, vehicle_id, value = row
+        value = value.split(': ')[1].replace('[', '').replace(']', '')
+        lat, longitude = value.split(',')
+        if vehicle_id not in ret.keys():
+            ret[vehicle_id] = {'lat': lat, 'long': longitude}
+    return ret
 
 def get_sensors_for_vehicle(vehicle_id):
     sensors = []

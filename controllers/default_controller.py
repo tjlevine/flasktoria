@@ -24,13 +24,13 @@ def map_get() -> str:
     return {
         "vehicles": [
             {
-                "name": vid,
+                "name": test_data.driver_name(vid),
                 "id": vid,
-                "lat": test_data.vehicle(vid)["lat"],
-                "long": test_data.vehicle(vid)["long"],
-                "status": test_data.vehicle(vid)["status"]
+                "lat": val['lat'],
+                "long": val['long'],
+                "status": "ok"
             }
-            for vid in vehicle_ids if test_data.has_vehicle(vid)
+            for vid, val in victoria_db.get_map_data_for_vehicles(vehicle_ids).values()
         ],
         "updateWebSocket": cfg("WS_URL")
     }
