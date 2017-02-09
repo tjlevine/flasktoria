@@ -37,7 +37,7 @@ def rest_server(wsctl_dict, kafka_msgs):
 
     controllers.default_controller.init_controller(kafka_msgs, wsctl_dict)
 
-    app.run(port=8080)
+    app.run(port=18080)
 
 # this is the entry point for the websocket server
 def ws_server(wsctl_dict, kafka_msgs):
