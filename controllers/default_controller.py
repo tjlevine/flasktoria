@@ -30,7 +30,7 @@ def map_get() -> str:
                 "long": val['long'],
                 "status": "ok"
             }
-            for vid, val in victoria_db.get_map_data_for_vehicles(vehicle_ids).values()
+            for vid, val in victoria_db.get_map_data_for_vehicles(vehicle_ids).items()
         ],
         "updateWebSocket": cfg("WS_URL")
     }
@@ -62,14 +62,14 @@ def vehicle_vehicle_id_get(vehicle_id) -> str:
                     "timestamp": msg[1]['timestamp'],
                     "value": json.loads(msg[1]['value'])['value']
                 }
-                for msg in filter(lambda msg: msg[0] == 'pid_47_mode_1', recent_data.values())
+                for msg in filter(lambda msg: msg[0] == 'pid_47_mode_1', recent_data.items())
             ],
             "speed": [
                 {
                     "timestamp": msg[1]['timestamp'],
                     "value": json.loads(msg[1]['value'])['value']
                 }
-                for msg in filter(lambda msg: msg[0] == 'pid_13_mode_1', recent_data.values())
+                for msg in filter(lambda msg: msg[0] == 'pid_13_mode_1', recent_data.items())
             ],
             # no clue what KPI really means, and nobody seems to want to define this
             # just going to return an empty array
