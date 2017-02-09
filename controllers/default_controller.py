@@ -48,6 +48,31 @@ def vehicle_vehicle_id_get(vehicle_id) -> str:
     curtime = int(round(time.time() * 1000))
     recent_data = victoria_db.get_recent_sensor_data_for_vehicle(vehicle_id)
 
+    if len(recent_data) == 0:
+        log.debug("No recent data for vehicle {}".format(vehicle_id))
+        return {
+            "name": vehicle_id,
+            # TODO: get actual vehicle status from database (how to determine active anomalies?)
+            "status": "ok",
+            "sensors": [{
+                "sensor_id": sid,
+                "sensor_name": sname
+            } for sid, sname in test_data.sensors().items()],
+            "sensordata": {
+                "fuel": [],
+                "speed": [],
+                # no clue what KPI really means, and nobody seems to want to define this
+                # just going to return an empty array
+                "kpi": []
+            }
+        }
+
+    log.debug("Recent items for vehicle {}: {}".format(vehicle_id, recent_data))
+    fuel_data = list(filter(lambda msg: msg[0] == 'pid_47_mode_1', recent_data.items()))[0][1]
+    log.debug("Fuel: {}".format(fuel_data))
+    speed_data = list(filter(lambda msg: msg[0] == 'pid_13_mode_1', recent_data.items()))[0][1]
+    log.debug("Speed: {}".format(speed_data))
+
     return {
         "name": vehicle_id,
         # TODO: get actual vehicle status from database (how to determine active anomalies?)
@@ -57,20 +82,8 @@ def vehicle_vehicle_id_get(vehicle_id) -> str:
             "sensor_name": sname
         } for sid, sname in test_data.sensors().items()],
         "sensordata": {
-            "fuel": [
-                {
-                    "timestamp": val_ts['timestamp'],
-                    "value": val_ts['value']
-                }
-                for _, val_ts in filter(lambda msg: msg[0] == 'pid_47_mode_1', recent_data.items())
-            ],
-            "speed": [
-                {
-                    "timestamp": val_ts['timestamp'],
-                    "value": val_ts['value']
-                }
-                for _, val_ts in filter(lambda msg: msg[0] == 'pid_13_mode_1', recent_data.items())
-            ],
+            "fuel": fuel_data,
+            "speed": speed_data,
             # no clue what KPI really means, and nobody seems to want to define this
             # just going to return an empty array
             "kpi": []
