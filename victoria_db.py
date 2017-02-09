@@ -38,6 +38,7 @@ def get_map_data_for_vehicles(vehicle_ids):
     ret = {}
     cursor = get_cursor()
     query = "select `timestamp`, sensor, uuid, value from sensor where sensor='gps_coordinates' order by `timestamp` desc limit 30"
+    run_query(query, cursor)
     for row in cursor:
         ts, sensor, vehicle_id, value = row
         value = value.split(': ')[1].replace('[', '').replace(']', '')
