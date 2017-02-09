@@ -97,7 +97,7 @@ def get_anomalies(start_ts, end_ts):
     cursor = get_cursor()
     query = 'SELECT `timestamp`, detection_time, confirmation_time, sensor, uuid, anomaly_id ' \
             'FROM anomaly ' \
-            'WHERE (`timestamp` BETWEEN \'{}\' AND \'{}\') ' \
+            'WHERE (`timestamp` BETWEEN {} AND {}) ' \
             'ORDER BY `timestamp` DESC'
     query = query.format(start_ts, end_ts)
     run_query(query, cursor)
