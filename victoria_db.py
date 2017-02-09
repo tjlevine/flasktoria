@@ -69,7 +69,7 @@ def get_sensor_data_for_vehicle(vehicle_id, sensor_ids, start_ts, end_ts):
     cursor = get_cursor()
     query = 'SELECT value, sensor, `timestamp` ' \
             'FROM sensor ' \
-            'WHERE (uuid=\'{}\' AND sensor IN ({}) AND (`timestamp` BETWEEN {} AND {})) '
+            'WHERE (uuid=\'{}\' AND sensor IN ({}) AND (`timestamp` BETWEEN \'{}\' AND \'{}\')) '
     query = query.format(vehicle_id, array_to_query_string(sensor_ids), start_ts, end_ts)
     run_query(query, cursor)
     ret = {}
@@ -96,7 +96,7 @@ def get_anomalies(start_ts, end_ts):
     cursor = get_cursor()
     query = 'SELECT `timestamp`, detection_time, confirmation_time, sensor, uuid, anomaly_id ' \
             'FROM anomaly ' \
-            'WHERE (`timestamp` BETWEEN {} AND {}) ' \
+            'WHERE (`timestamp` BETWEEN \'{}\' AND \'{}\') ' \
             'ORDER BY `timestamp` DESC'
     query = query.format(start_ts, end_ts)
     run_query(query, cursor)
