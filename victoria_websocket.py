@@ -228,9 +228,9 @@ def ws_main(wsctl_dict, kafka_rest_msgs):
                 bound_parse_fn = functools.partial(parse_kafka_message, wsctl_dict)
                 updates = list(map(bound_parse_fn, updates))
 
-                log.debug("Post parsing:")
-                for message in updates:
-                    log.debug(message)
+                #log.debug("Post parsing:")
+                #afor message in updates:
+                    #log.debug(message)
 
                 # send all the messages to the rest server process
                 send_to_rest_process(updates, kafka_rest_msgs)
@@ -238,16 +238,16 @@ def ws_main(wsctl_dict, kafka_rest_msgs):
                 # filter out the messages we don't want to send over the websocket
                 updates = filter_suppressed_messages(wsctl_dict, updates)
 
-                log.debug("Post filter:")
-                for message in updates:
-                    log.debug(message)
+                #log.debug("Post filter:")
+                #for message in updates:
+                    #log.debug(message)
                 
                 updates = list(map(lambda m: m[1], updates))
                 messages = {"updates": updates}
 
-                log.debug("Sending these messages over websocket:")
-                for message in updates:
-                    log.debug(message)
+                #log.debug("Sending these messages over websocket:")
+                #for message in updates:
+                    #log.debug(message)
 
                 # send the remaining messages over the websocket connection
                 await ws.send(json.dumps(messages))
