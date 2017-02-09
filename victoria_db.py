@@ -74,11 +74,11 @@ def get_sensor_data_for_vehicle(vehicle_id, sensor_ids, start_ts, end_ts):
     query = query.format(vehicle_id, array_to_query_string(sensor_ids), start_ts, end_ts)
     run_query(query, cursor)
     ret = {}
-    for val_json, sensor, ts in cursor.fetchall():
+    for val, sensor, ts in cursor.fetchall():
         if sensor not in ret:
             ret[sensor] = []
         ret[sensor].append({
-            'value': json.loads(val_json)['value'],
+            "value": val.split(': ')[1],
             'timestamp': ts
         })
     return ret
