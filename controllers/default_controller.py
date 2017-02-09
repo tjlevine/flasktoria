@@ -47,6 +47,23 @@ def vehicle_vehicle_id_get(vehicle_id) -> str:
     vehicle = test_data.vehicle(vehicle_id)
     curtime = int(round(time.time() * 1000))
     recent_data = victoria_db.get_recent_sensor_data_for_vehicle(vehicle_id)
+    log.debug("Recent items for vehicle {}".format(vehicle_id))
+    fuel_data = [
+        {
+            "timestamp": val_ts['timestamp'],
+            "value": val_ts['value']
+        }
+        for _, val_ts in filter(lambda msg: msg[0] == 'pid_47_mode_1', recent_data.items())
+    ]
+    log.debug("Fuel: {}".format(fuel_data))
+    speed_data: [
+        {
+            "timestamp": val_ts['timestamp'],
+            "value": val_ts['value']
+        }
+        for _, val_ts in filter(lambda msg: msg[0] == 'pid_13_mode_1', recent_data.items())
+    ]
+    log.debug("Speed: {}".format(speed_data))
 
     return {
         "name": vehicle_id,
@@ -57,20 +74,8 @@ def vehicle_vehicle_id_get(vehicle_id) -> str:
             "sensor_name": sname
         } for sid, sname in test_data.sensors().items()],
         "sensordata": {
-            "fuel": [
-                {
-                    "timestamp": val_ts['timestamp'],
-                    "value": val_ts['value']
-                }
-                for _, val_ts in filter(lambda msg: msg[0] == 'pid_47_mode_1', recent_data.items())
-            ],
-            "speed": [
-                {
-                    "timestamp": val_ts['timestamp'],
-                    "value": val_ts['value']
-                }
-                for _, val_ts in filter(lambda msg: msg[0] == 'pid_13_mode_1', recent_data.items())
-            ],
+            "fuel": fuel_data,
+            "speed": speed_data,
             # no clue what KPI really means, and nobody seems to want to define this
             # just going to return an empty array
             "kpi": []
