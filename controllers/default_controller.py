@@ -59,17 +59,17 @@ def vehicle_vehicle_id_get(vehicle_id) -> str:
         "sensordata": {
             "fuel": [
                 {
-                    "timestamp": msg[1]['timestamp'],
-                    "value": msg[1]['value'].split(': ')[1]
+                    "timestamp": val_ts['timestamp'],
+                    "value": val_ts['value']
                 }
-                for msg in filter(lambda msg: msg[0] == 'pid_47_mode_1', recent_data.items())
+                for _, val_ts in filter(lambda msg: msg[0] == 'pid_47_mode_1', recent_data.items())
             ],
             "speed": [
                 {
-                    "timestamp": msg[1]['timestamp'],
-                    "value": msg[1]['value'].split(': ')[1]
+                    "timestamp": val_ts['timestamp'],
+                    "value": val_ts['value']
                 }
-                for msg in filter(lambda msg: msg[0] == 'pid_13_mode_1', recent_data.items())
+                for _, val_ts in filter(lambda msg: msg[0] == 'pid_13_mode_1', recent_data.items())
             ],
             # no clue what KPI really means, and nobody seems to want to define this
             # just going to return an empty array
