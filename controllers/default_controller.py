@@ -47,22 +47,10 @@ def vehicle_vehicle_id_get(vehicle_id) -> str:
     vehicle = test_data.vehicle(vehicle_id)
     curtime = int(round(time.time() * 1000))
     recent_data = victoria_db.get_recent_sensor_data_for_vehicle(vehicle_id)
-    log.debug("Recent items for vehicle {}".format(vehicle_id))
-    fuel_data = [
-        {
-            "timestamp": val_ts['timestamp'],
-            "value": val_ts['value']
-        }
-        for _, val_ts in filter(lambda msg: msg[0] == 'pid_47_mode_1', recent_data.items())
-    ]
+    log.debug("Recent items for vehicle {}: {}".format(vehicle_id, recent_data))
+    fuel_data = list(filter(lambda msg: msg[0] == 'pid_47_mode_1', recent_data.items()))[0][1]
     log.debug("Fuel: {}".format(fuel_data))
-    speed_data: [
-        {
-            "timestamp": val_ts['timestamp'],
-            "value": val_ts['value']
-        }
-        for _, val_ts in filter(lambda msg: msg[0] == 'pid_13_mode_1', recent_data.items())
-    ]
+    speed_data = list(filter(lambda msg: msg[0] == 'pid_13_mode_1', recent_data.items()))[0][1]
     log.debug("Speed: {}".format(speed_data))
 
     return {
