@@ -9,13 +9,11 @@ log = logging.getLogger("flasktoria.rest")
 log.setLevel(logging.DEBUG)
 
 WSCTL_DICT = None
-KAFKA_MSGS = None
 
 def init_controller(kafka_msgs, wsctl_dict):
-    global WSCTL_DICT, KAFKA_MSGS
+    global WSCTL_DICT
     log.info("default controller init")
 
-    KAFKA_MSGS = kafka_msgs
     WSCTL_DICT = wsctl_dict
 
 def map_get() -> str:
@@ -125,10 +123,7 @@ def anomalies_get(start_ts, end_ts = None) -> str:
     return victoria_db.get_anomalies(start_ts, end_ts)
 
 def sensordata_vehicle_id_get(vehicle_id, sensor_ids, start_ts, end_ts = None) -> str:
-    log.info("sensor data called with vehicle: {}, sensor_ids: {}, start_ts: {}, end_ts: {}".format(vehicle_id, sensor_ids, start_ts, end_ts))
-
-    if not test_data.has_vehicle(vehicle_id):
-        return {}, 400
+    log.debug("sensor data called with vehicle: {}, sensor_ids: {}, start_ts: {}, end_ts: {}".format(vehicle_id, sensor_ids, start_ts, end_ts))
 
     curtime = int(round(time.time() * 1000))
 
