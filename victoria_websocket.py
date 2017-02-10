@@ -188,9 +188,11 @@ def ws_main(wsctl_dict, kafka_rest_msgs):
 
     kafka_process = multiprocessing.Process(target=start_kafka_consumer, args=(kafka_msg_queue,))
     kafka_process.start()
+    log.debug("kafka process: {}".format(kafka_process))
 
     kafka_anomaly_process = multiprocessing.Process(target=start_anomaly_kafka_consumer, args=(kafka_anomaly_queue,))
     kafka_anomaly_process.start()
+    log.debug("kafka anomaly process: {}".format(kafka_anomaly_process))
 
     def sigterm_handler(signum, frame):
         log.debug("WS server is shutting down")
