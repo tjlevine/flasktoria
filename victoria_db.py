@@ -27,7 +27,11 @@ def run_query(query, cursor):
 def get_all_vehicle_uuids():
     vehicle_uuids = []
     cursor = get_cursor()
-    query = 'SELECT DISTINCT uuid FROM sensor LIMIT 100'
+    curtime = int(time.time() * 1000)
+    # all vehicles must send a data point at least every 5 mins
+    cutoff = curtime - 5 * 60 * 1000
+    query = 'SELECT DISTINCT uuid FROM sensor ' \
+            'WHERE `timestamp` BETWEEN \'{}\' AND \'{}\''.format(cutoff, curtime)
     run_query(query, cursor)
     for row in cursor:
         vehicle_uuid, = row
@@ -37,7 +41,13 @@ def get_all_vehicle_uuids():
 def get_map_data_for_vehicles(vehicle_ids):
     ret = {}
     cursor = get_cursor()
-    query = "select `timestamp`, sensor, uuid, value from sensor where sensor='gps_coordinates' order by `timestamp` desc limit 30"
+    curtime = int(time.time() * 1000)
+    # all vehicles must send a position update at least every 5 mins
+    cutoff = curtime - 5 * 60 * 1000
+    query = 'SELECT `timestamp`, sensor, uuid, value ' \
+            'FROM sensor WHERE sensor=\'gps_coordinates\' AND ' \
+            '`timestamp` BETWEEN \'{}\' AND \'{}\' ' \
+            'ORDER BY `timestamp` DESC LIMIT 30'.format(cutoff, curtime)
     run_query(query, cursor)
     for row in cursor:
         ts, sensor, vehicle_id, value = row
@@ -50,7 +60,13 @@ def get_map_data_for_vehicles(vehicle_ids):
 def get_sensors_for_vehicle(vehicle_id):
     sensors = []
     cursor = get_cursor()
-    query = 'SELECT DISTINCT sensor FROM sensor WHERE uuid=\'{}\' LIMIT 100'.format(vehicle_id)
+    curtime = int(time.time() * 1000)
+    # all vehicle sensors must send an update at least every 5 mins
+    cutoff = curtime - 5 * 60 * 1000
+    query = 'SELECT DISTINCT sensor ' \
+            'FROM sensor WHERE uuid=\'{}\' AND ' \
+            '`timestamp` BETWEEN \'{}\' and \'{}\' ' \
+            'LIMIT 100'.format(vehicle_id, cutoff, curtime)
     run_query(query, cursor)
     for row in cursor:
         sensor, = row
