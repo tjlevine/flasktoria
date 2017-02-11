@@ -10,7 +10,7 @@ log.setLevel(logging.DEBUG)
 
 WSCTL_DICT = None
 
-def init_controller(kafka_msgs, wsctl_dict):
+def init_controller(wsctl_dict):
     global WSCTL_DICT
     log.info("default controller init")
 
@@ -157,18 +157,7 @@ def sensordata_vehicle_id_get(vehicle_id, sensor_ids, start_ts, end_ts = None) -
         log.warn("End timestamp ({}) is greater than current time ({}), using current time as end timestamp".format(end_ts, curtime))
         end_ts = curtime
 
-    cutoff_ts = curtime - 2 * 60 * 1000
-
-    #if start_ts < cutoff_ts and end_ts <= cutoff_ts:
-        # request can be serviced entirely from the db
     sensor_data = victoria_db.get_sensor_data_for_vehicle(vehicle_id, sensor_ids, start_ts, end_ts)
-    #elif start_ts < cutoff_ts and end_ts > cutoff_ts:
-        # end ts is after cutoff, need to get some data from kafka cache
-        #pass
-    #else:
-        # both start and end are after cutoff, but before curtime
-        # so we must get all data from kafka cache
-        #pass
 
     return sensor_data
 

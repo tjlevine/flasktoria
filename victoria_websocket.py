@@ -159,26 +159,7 @@ def filter_suppressed_messages(wsctl_dict, updates):
     updates = list(filter(lambda x: x is not None, updates))
     return updates
 
-def send_to_rest_process(updates, kafka_rest_msgs):
-    # first, go through the existing list to remove expired entries
-    curtime = int(round(time.time() * 1000))
-
-    #for msg in updates:
-        #log.debug("update msg: {}".format(msg))
-
-    #for msg in kafka_rest_msgs:
-        #log.debug("msg in cache: {}".format(msg))
-
-    # filter out messages that are older than 3 minutes
-    stale_msgs = filter(lambda msg: (curtime - msg[0]) >= (1000 * 60 * 3), kafka_rest_msgs)
-
-    for msg in stale_msgs:
-        kafka_rest_msgs.remove(msg)
-
-    # add the new updates to the list shared with the rest process
-    kafka_rest_msgs.extend(updates)
-
-def ws_main(wsctl_dict, kafka_rest_msgs):
+def ws_main(wsctl_dict):
     import os
     import websockets
     import asyncio
@@ -237,11 +218,8 @@ def ws_main(wsctl_dict, kafka_rest_msgs):
                 updates = list(map(bound_parse_fn, updates))
 
                 #log.debug("Post parsing:")
-                #afor message in updates:
+                #for message in updates:
                     #log.debug(message)
-
-                # send all the messages to the rest server process
-                send_to_rest_process(updates, kafka_rest_msgs)
 
                 # filter out the messages we don't want to send over the websocket
                 updates = filter_suppressed_messages(wsctl_dict, updates)

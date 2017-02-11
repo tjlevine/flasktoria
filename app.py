@@ -12,7 +12,7 @@ def load_config():
         return load(fin)
 
 # this is the entry point for the rest server
-def rest_server(wsctl_dict, kafka_msgs):
+def rest_server(wsctl_dict):
     import os
     import connexion
     import controllers.default_controller
@@ -35,16 +35,16 @@ def rest_server(wsctl_dict, kafka_msgs):
         CFG = load_config()
         return render_template('websocket_test.html', ws_url=CFG["WS_URL"])
 
-    controllers.default_controller.init_controller(kafka_msgs, wsctl_dict)
+    controllers.default_controller.init_controller(wsctl_dict)
 
     app.run(port=18080)
 
 # this is the entry point for the websocket server
-def ws_server(wsctl_dict, kafka_msgs):
+def ws_server(wsctl_dict):
     logging.getLogger("flasktoria.main.ws").debug("starting ws server")
     import victoria_websocket
 
-    victoria_websocket.ws_main(wsctl_dict, kafka_msgs)
+    victoria_websocket.ws_main(wsctl_dict)
 
 # this is the main application entry point
 if __name__ == '__main__':
@@ -56,14 +56,13 @@ if __name__ == '__main__':
     # wsctl message queue for communication between ws process and rest process
     mgr = multiprocessing.Manager()
     wsctl_dict = mgr.dict()
-    kafka_msgs = mgr.list()
 
     # init and start the websocket process
-    ws_process = multiprocessing.Process(target=ws_server, args=(wsctl_dict, kafka_msgs))
+    ws_process = multiprocessing.Process(target=ws_server, args=(wsctl_dict,))
     ws_process.start()
 
     # now start the rest server in it's own process
-    rest_process = multiprocessing.Process(target=rest_server, args=(wsctl_dict, kafka_msgs))
+    rest_process = multiprocessing.Process(target=rest_server, args=(wsctl_dict,))
     rest_process.start()
 
     def sigterm_handler(signum, frame):
