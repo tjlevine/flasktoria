@@ -65,11 +65,11 @@ def vehicle_vehicle_id_get(vehicle_id) -> str:
             }
         }
 
-    log.debug("Recent items for vehicle {}: {}".format(vehicle_id, recent_data))
+    #log.debug("Recent items for vehicle {}: {}".format(vehicle_id, recent_data))
     fuel_data = list(filter(lambda msg: msg[0] == 'pid_47_mode_1', recent_data.items()))[0][1]
-    log.debug("Fuel: {}".format(fuel_data))
+    #log.debug("Fuel: {}".format(fuel_data))
     speed_data = list(filter(lambda msg: msg[0] == 'pid_13_mode_1', recent_data.items()))[0][1]
-    log.debug("Speed: {}".format(speed_data))
+    #log.debug("Speed: {}".format(speed_data))
 
     return {
         "name": vehicle_id,
