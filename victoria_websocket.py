@@ -12,7 +12,7 @@ import anomalies
 from cfg import cfg
 
 log = logging.getLogger("flasktoria.ws")
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 
 def start_kafka_consumer(msg_queue):
     from kafka import KafkaConsumer
@@ -22,7 +22,7 @@ def start_kafka_consumer(msg_queue):
     import io
 
     log = logging.getLogger('flasktoria.ws.sensor')
-    log.setLevel(logging.DEBUG)
+    log.setLevel(logging.INFO)
 
     topic = cfg("KAFKA_TOPIC")
     avro_path = cfg("AVRO_SCHEMA_PATH")
@@ -32,7 +32,7 @@ def start_kafka_consumer(msg_queue):
         avro_schema = avro.schema.Parse(fin.read())
 
     log.debug("kafka bootstrap server: {}".format(kafka_bootstrap_server))
-    consumer = KafkaConsumer(topic, group_id='flasktoria0', bootstrap_servers=[kafka_bootstrap_server])#, auto_offset_reset='earliest', enable_auto_commit=False)
+    consumer = KafkaConsumer(topic, group_id='flasktoria2', bootstrap_servers=[kafka_bootstrap_server])#, auto_offset_reset='earliest', enable_auto_commit=False)
 
     for msg in consumer:
         try:
@@ -40,7 +40,7 @@ def start_kafka_consumer(msg_queue):
             decoder = avro.io.BinaryDecoder(bytes_reader)
             reader = avro.io.DatumReader(avro_schema)
             record = reader.read(decoder)
-            log.debug("Received kafka message: {}".format(record))
+            #log.debug("Received sensor message: {}".format(record))
             msg_queue.put(record)
         except AssertionError:
             log.warn("Got assertion error from avro decode on message: {}".format(msg))
@@ -53,7 +53,7 @@ def start_anomaly_kafka_consumer(msg_queue):
     import io
 
     log = logging.getLogger('flasktoria.ws.anomaly')
-    log.setLevel(logging.DEBUG)
+    log.setLevel(logging.INFO)
 
     topic = cfg("KAFKA_ANOMALY_TOPIC")
     avro_path = cfg("AVRO_ANOMALY_SCHEMA_PATH")
@@ -63,7 +63,7 @@ def start_anomaly_kafka_consumer(msg_queue):
         avro_schema = avro.schema.Parse(fin.read())
 
     log.debug("kafka bootstrap server: {}".format(kafka_bootstrap_server))
-    consumer = KafkaConsumer(topic, group_id='flasktoria1', bootstrap_servers=[kafka_bootstrap_server])#, auto_offset_reset='earliest', enable_auto_commit=False)
+    consumer = KafkaConsumer(topic, group_id='flasktoria3', bootstrap_servers=[kafka_bootstrap_server])#, auto_offset_reset='earliest', enable_auto_commit=False)
 
     for msg in consumer:
         try:
@@ -71,7 +71,7 @@ def start_anomaly_kafka_consumer(msg_queue):
             decoder = avro.io.BinaryDecoder(bytes_reader)
             reader = avro.io.DatumReader(avro_schema)
             record = reader.read(decoder)
-            log.debug("Received anomaly message: {}".format(record))
+            #log.debug("Received anomaly message: {}".format(record))
             msg_queue.put(record)
         except AssertionError:
             log.warn("Got assertion error from avro decode on message: {}".format(msg))
@@ -122,7 +122,7 @@ def parse_sensor_update(msg, wsctl_dict):
         }
 
 def parse_anomaly_message(msg):
-    anomaly = anomalies.create_from_template(msg['anomaly_id'], msg['uuid'], msg['confirmation_time'], msg['detection_time'])
+    anomaly = anomalies.create_from_template(msg['anomaly_id'], msg['uuid'], msg['detection_time'], msg['confirmation_time'])
 
     if anomaly is not None:
         anomaly['update_type'] = 'anomaly'
@@ -153,7 +153,6 @@ def get_kafka_updates(msg_queue):
         try:
             updates.append(msg_queue.get(block=False))
         except queue.Empty:
-            log.debug("Got {} kafka messages from kafka process".format(len(updates)))
             return updates
 
 def filter_suppressed_messages(wsctl_dict, updates):
@@ -193,6 +192,7 @@ def ws_main(wsctl_dict):
         log.debug("kafka processes joined")
         asyncio.get_event_loop().stop()
         log.debug("asyncio event loop stopped")
+        log.info("Websocket server terminating")
         sys.exit(0)
 
     signal.signal(signal.SIGTERM, sigterm_handler)
@@ -200,7 +200,7 @@ def ws_main(wsctl_dict):
     # read config to find host and port to set up ws server on
     _, _, port = cfg('WS_URL').split(':')
     host = "0.0.0.0"
-    log.debug('starting ws server on {}:{}'.format(host, port))
+    log.info('starting ws server on {}:{}'.format(host, port))
 
     # define our emit loop as a closure so we can access wsctl_dict
     async def emit_loop(ws, path):
@@ -211,11 +211,10 @@ def ws_main(wsctl_dict):
             sensor_updates = len(updates)
             updates += get_kafka_updates(kafka_anomaly_queue)
             anomaly_updates = len(updates) - sensor_updates
-            log.debug("Got {} sensor updates and {} anomaly updates this loop".format(sensor_updates, anomaly_updates))
+            log.info("Got {} sensor updates and {} anomaly updates this loop".format(sensor_updates, anomaly_updates))
 
             if len(updates) > 0:
                 #kafka_cache.add_entries(updates)
-                log.debug("emitting {} updates".format(len(updates)))
 
                 # map the kafka messages into their equivalent parsed format
                 bound_parse_fn = functools.partial(parse_kafka_message, wsctl_dict)
@@ -238,6 +237,8 @@ def ws_main(wsctl_dict):
                 log.debug("Sending these messages over websocket:")
                 for message in updates:
                     log.debug(message)
+
+                log.info("emitting {} updates".format(len(updates)))
 
                 # send the remaining messages over the websocket connection
                 await ws.send(json.dumps(messages))
