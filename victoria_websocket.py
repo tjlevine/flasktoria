@@ -40,7 +40,7 @@ def start_kafka_consumer(msg_queue):
             decoder = avro.io.BinaryDecoder(bytes_reader)
             reader = avro.io.DatumReader(avro_schema)
             record = reader.read(decoder)
-            #log.debug("Received kafka message: {}".format(record))
+            log.debug("Received kafka message: {}".format(record))
             msg_queue.put(record)
         except AssertionError:
             log.warn("Got assertion error from avro decode on message: {}".format(msg))
@@ -153,6 +153,7 @@ def get_kafka_updates(msg_queue):
         try:
             updates.append(msg_queue.get(block=False))
         except queue.Empty:
+            log.debug("Got {} kafka messages from kafka process".format(len(updates)))
             return updates
 
 def filter_suppressed_messages(wsctl_dict, updates):
@@ -207,7 +208,10 @@ def ws_main(wsctl_dict):
         while True:
             #updates = test_data.get_test_updates()
             updates = get_kafka_updates(kafka_msg_queue)
+            sensor_updates = len(updates)
             updates += get_kafka_updates(kafka_anomaly_queue)
+            anomaly_updates = len(updates) - sensor_updates
+            log.debug("Got {} sensor updates and {} anomaly updates this loop".format(sensor_updates, anomaly_updates))
 
             if len(updates) > 0:
                 #kafka_cache.add_entries(updates)
@@ -217,23 +221,23 @@ def ws_main(wsctl_dict):
                 bound_parse_fn = functools.partial(parse_kafka_message, wsctl_dict)
                 updates = list(map(bound_parse_fn, updates))
 
-                #log.debug("Post parsing:")
-                #for message in updates:
-                    #log.debug(message)
+                log.debug("Post parsing:")
+                for message in updates:
+                    log.debug(message)
 
                 # filter out the messages we don't want to send over the websocket
                 updates = filter_suppressed_messages(wsctl_dict, updates)
 
-                #log.debug("Post filter:")
-                #for message in updates:
-                    #log.debug(message)
+                log.debug("Post filter:")
+                for message in updates:
+                    log.debug(message)
                 
                 updates = list(map(lambda m: m[1], updates))
                 messages = {"updates": updates}
 
-                #log.debug("Sending these messages over websocket:")
-                #for message in updates:
-                    #log.debug(message)
+                log.debug("Sending these messages over websocket:")
+                for message in updates:
+                    log.debug(message)
 
                 # send the remaining messages over the websocket connection
                 await ws.send(json.dumps(messages))
