@@ -17,8 +17,6 @@ def init_controller(wsctl_dict):
     WSCTL_DICT = wsctl_dict
 
 def map_get() -> str:
-    vehicle_ids = victoria_db.get_all_vehicle_uuids()
-
     return {
         "vehicles": [
             {
@@ -28,7 +26,7 @@ def map_get() -> str:
                 "long": val['long'],
                 "status": "ok"
             }
-            for vid, val in victoria_db.get_map_data_for_vehicles(vehicle_ids).items()
+            for vid, val in victoria_db.get_map_data().items()
         ],
         "updateWebSocket": cfg("WS_URL")
     }
