@@ -42,7 +42,6 @@ def cost_vehicle_id_get(vehicle_id) -> str:
         return {}, 400
 
 def vehicle_vehicle_id_get(vehicle_id) -> str:
-    vehicle = test_data.vehicle(vehicle_id)
     curtime = int(round(time.time() * 1000))
     recent_data = victoria_db.get_recent_sensor_data_for_vehicle(vehicle_id)
 
