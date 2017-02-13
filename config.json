@@ -5,6 +5,7 @@
     "AVRO_SCHEMA_PATH": "schema/sensorRecord.avsc",
     "AVRO_ANOMALY_SCHEMA_PATH": "schema/anomalyEvent.avsc",
     "KAFKA_BOOTSTRAP_SERVER": "pnda-proxy:9092",
+    "KAFKA_GROUP_ID": "flasktoria-master",
     "DB_HOST": "pnda-proxy",
     "DB_PORT": 21050
 }

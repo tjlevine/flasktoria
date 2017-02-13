@@ -27,12 +27,13 @@ def start_kafka_consumer(msg_queue):
     topic = cfg("KAFKA_TOPIC")
     avro_path = cfg("AVRO_SCHEMA_PATH")
     kafka_bootstrap_server = cfg("KAFKA_BOOTSTRAP_SERVER")
+    kafka_group_id = cfg("KAFKA_GROUP_ID")
 
     with open(avro_path) as fin:
         avro_schema = avro.schema.Parse(fin.read())
 
-    log.debug("kafka bootstrap server: {}".format(kafka_bootstrap_server))
-    consumer = KafkaConsumer(topic, group_id='flasktoria2', bootstrap_servers=[kafka_bootstrap_server])#, auto_offset_reset='earliest', enable_auto_commit=False)
+    log.debug("kafka bootstrap server: %s", kafka_bootstrap_server)
+    consumer = KafkaConsumer(topic, group_id=kafka_group_id, bootstrap_servers=[kafka_bootstrap_server])#, auto_offset_reset='earliest', enable_auto_commit=False)
 
     for msg in consumer:
         try:
@@ -58,12 +59,13 @@ def start_anomaly_kafka_consumer(msg_queue):
     topic = cfg("KAFKA_ANOMALY_TOPIC")
     avro_path = cfg("AVRO_ANOMALY_SCHEMA_PATH")
     kafka_bootstrap_server = cfg("KAFKA_BOOTSTRAP_SERVER")
+    kafka_group_id = cfg("KAFKA_GROUP_ID")
 
     with open(avro_path) as fin:
         avro_schema = avro.schema.Parse(fin.read())
 
-    log.debug("kafka bootstrap server: {}".format(kafka_bootstrap_server))
-    consumer = KafkaConsumer(topic, group_id='flasktoria3', bootstrap_servers=[kafka_bootstrap_server])#, auto_offset_reset='earliest', enable_auto_commit=False)
+    log.debug("kafka bootstrap server: %s", kafka_bootstrap_server)
+    consumer = KafkaConsumer(topic, group_id=kafka_group_id, bootstrap_servers=[kafka_bootstrap_server])#, auto_offset_reset='earliest', enable_auto_commit=False)
 
     for msg in consumer:
         try:
