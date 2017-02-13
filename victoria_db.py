@@ -38,7 +38,7 @@ def get_all_vehicle_uuids():
         vehicle_uuids.append(vehicle_uuid)
     return vehicle_uuids
 
-def get_map_data_for_vehicles(vehicle_ids):
+def get_map_data():
     ret = {}
     cursor = get_cursor()
     curtime = int(time.time() * 1000)
@@ -51,10 +51,11 @@ def get_map_data_for_vehicles(vehicle_ids):
     run_query(query, cursor)
     for row in cursor:
         ts, sensor, vehicle_id, value = row
+        if vehicle_id in ret.keys():
+            continue
         value = value.split(': ')[1].replace('[', '').replace(']', '')
         lat, longitude = value.split(',')
-        if vehicle_id not in ret.keys():
-            ret[vehicle_id] = {'lat': lat, 'long': longitude}
+        ret[vehicle_id] = {'lat': lat, 'long': longitude}
     return ret
 
 def get_sensors_for_vehicle(vehicle_id):
