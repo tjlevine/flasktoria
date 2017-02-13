@@ -147,18 +147,21 @@ def has_vehicle(vehicle_id):
         return False
 
 def cost(vehicle_id):
-    if 'COSTS' not in DATA:
-        log.warn('costs key is not in test data!')
-        return
-    
-    # global vehicle ID means return global cost values
-    if vehicle_id == 'global':
-        return DATA['COSTS']['GLOBAL']
-    
-    if vehicle_id in DATA['COSTS']:
-        return DATA['COSTS'][vehicle_id]
-    else:
-        log.warn('Vehicle id {} not present in costs test data!'.format(vehicle_id))
+    costs = [
+        {
+            "value": "4.3% Over Budget Y2Y",
+            "why": "Higher than Budgeted Fuel Costs due Inclement Weather in Spring This Year"
+        },
+        {
+            "value": "6.7% under Budget over Last 2 Quarters",
+            "why": "Reduction in Average Idle Times through Improved Tracking"
+        },
+        {
+            "value": "3.2% Reduction in Lost Productivity This Year",
+            "why": "Investment in Poor Driver Awareness and Eduction"
+        }
+    ]
+    return random.choice(costs)
 
 def sensors():
     return DATA['SENSORS']
