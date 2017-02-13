@@ -44,7 +44,7 @@ def start_kafka_consumer(msg_queue):
             #log.debug("Received sensor message: {}".format(record))
             msg_queue.put(record)
         except AssertionError:
-            log.warn("Got assertion error from avro decode on message: {}".format(msg))
+            log.warn("Got assertion error from avro decode on message: %s", msg)
 
 def start_anomaly_kafka_consumer(msg_queue):
     from kafka import KafkaConsumer
@@ -76,7 +76,7 @@ def start_anomaly_kafka_consumer(msg_queue):
             #log.debug("Received anomaly message: {}".format(record))
             msg_queue.put(record)
         except AssertionError:
-            log.warn("Got assertion error from avro decode on message: {}".format(msg))
+            log.warn("Got assertion error from avro decode on message: %s", msg)
 
 def parse_gps_message(msg, wsctl_dict):
     #value = json.loads(msg['value'])['value']
@@ -130,7 +130,7 @@ def parse_anomaly_message(msg):
         anomaly['update_type'] = 'anomaly'
         return anomaly
     else:
-        log.warn("Could not find anomaly template for anomaly id {}".format(anomaly_id))
+        log.warn("Could not find anomaly template for anomaly id %s", anomaly_id)
 
 def parse_kafka_message(wsctl_dict, msg):
     if 'anomaly_id' in msg:
@@ -147,7 +147,7 @@ def parse_kafka_message(wsctl_dict, msg):
         else:
             return timestamp, parse_sensor_update(msg, wsctl_dict)
 
-    log.warn("Got unparseable kafka message: {}".format(msg))
+    log.warn("Got unparseable kafka message: %s", msg)
 
 def get_kafka_updates(msg_queue):
     updates = []
@@ -168,7 +168,7 @@ def ws_main(wsctl_dict):
     import signal
     import sys
 
-    log.debug('in ws main (pid is {})'.format(os.getpid()))
+    log.debug('in ws main (pid is %d)', os.getpid())
 
     # start the kafka consumer process
     mgr = multiprocessing.Manager()
@@ -177,11 +177,11 @@ def ws_main(wsctl_dict):
 
     kafka_process = multiprocessing.Process(target=start_kafka_consumer, args=(kafka_msg_queue,))
     kafka_process.start()
-    log.debug("kafka process: {}".format(kafka_process))
+    log.debug("kafka process: %s", kafka_process)
 
     kafka_anomaly_process = multiprocessing.Process(target=start_anomaly_kafka_consumer, args=(kafka_anomaly_queue,))
     kafka_anomaly_process.start()
-    log.debug("kafka anomaly process: {}".format(kafka_anomaly_process))
+    log.debug("kafka anomaly process: %s",kafka_anomaly_process)
 
     def sigterm_handler(signum, frame):
         log.debug("WS server is shutting down")
@@ -202,7 +202,7 @@ def ws_main(wsctl_dict):
     # read config to find host and port to set up ws server on
     _, _, port = cfg('WS_URL').split(':')
     host = "0.0.0.0"
-    log.info('starting ws server on {}:{}'.format(host, port))
+    log.info('starting ws server on %s:%s', host, port)
 
     # define our emit loop as a closure so we can access wsctl_dict
     async def emit_loop(ws, path):
@@ -213,7 +213,7 @@ def ws_main(wsctl_dict):
             sensor_updates = len(updates)
             updates += get_kafka_updates(kafka_anomaly_queue)
             anomaly_updates = len(updates) - sensor_updates
-            log.info("Got {} sensor updates and {} anomaly updates this loop".format(sensor_updates, anomaly_updates))
+            log.info("Got %d sensor updates and %d anomaly updates this loop", sensor_updates, anomaly_updates)
 
             if len(updates) > 0:
                 #kafka_cache.add_entries(updates)
@@ -240,7 +240,7 @@ def ws_main(wsctl_dict):
                 for message in updates:
                     log.debug(message)
 
-                log.info("emitting {} updates".format(len(updates)))
+                log.info("emitting %d updates", len(updates))
 
                 # send the remaining messages over the websocket connection
                 await ws.send(json.dumps(messages))
