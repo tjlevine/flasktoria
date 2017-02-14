@@ -173,4 +173,34 @@ def anomalies():
     return DATA['ANOMALIES']
 
 def driver_name(vehicle_id):
+    drivers = {
+        'VEHICLE-0': 'Ryan Blaney',
+        'VEHICLE-1': 'Austin Dillon',
+        'VEHICLE-2': 'David Ragan',
+        'VEHICLE-3': 'Paul Menard',
+        'VEHICLE-4': 'Michael McDowell',
+        'VEHICLE-5': 'Kevin O\'Connell',
+        'VEHICLE-6': 'Timmy Hill',
+        'VEHICLE-7': 'Jeffrey Earnhardt',
+        'VEHICLE-8': 'Alex Bowman',
+        'VEHICLE-9': 'Jeb Burton',
+        'VEHICLE-10': 'Jose Wise',
+        'VEHICLE-11': 'Kyle Larson',
+        'VEHICLE-12': 'Matt Kenseth',
+        'VEHICLE-13': 'Cole Custer',
+        'VEHICLE-14': 'Harrison Rhodes',
+        'VEHICLE-15': 'Ray Black Jr.',
+        'VEHICLE-16': 'Paige Decker',
+        'VEHICLE-17': 'Alon Day',
+        'VEHICLE-18': 'Martin Roy',
+        'VEHICLE-19': 'Matt Waltz',
+        'VEHICLE-20': 'Alli Owens',
+        'VEHICLE-21': 'Chris Cook',
+        'VEHICLE-22': 'Derek White',
+        'VEHICLE-23': 'Stewart Friesen',
+        'VEHICLE-24': 'Bobby Pierce'
+    }
+
+    if vehicle_id in drivers.keys():
+        return drivers[vehicle_id]
     return "DRIVER FOR {}".format(vehicle_id)
