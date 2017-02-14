@@ -3,22 +3,22 @@
         "desc": "Tire Pressure is low",
         "cause": "Flat Tire",
         "actions": "Request vehicle assistance",
-        "downtime": 45,
+        "downtime": 800,
         "cost_impact": 100,
         "sensors": ["pid_204_mode_1","pid_203_mode_1","pid_201_mode_1","pid_202_mode_1"]
     },
     {
-        "desc": "Excessive Braking",
-        "cause": "Driver is tailgating",
-        "actions": "Notify driver",
-        "downtime": 5,
+        "desc": "Patterns of excessive braking detected",
+        "cause": "Tailgating",
+        "actions": "Contact the driver/Contact HR/Contact Safety department/Contact Insurance/Continue to monitor the driving pattern",
+        "downtime": 500,
         "cost_impact": 0,
         "sensors": ["pid_205_mode_1","pid_13_mode_1"]
     },
     {
-        "desc": "High Speed in Poor Weather Conditions",
-        "cause": "Driver is driving in an unsafe manner for current weather conditions",
-        "actions": "Alert driver to reduce speed",
+        "desc": "Careless driving in bad weather",
+        "cause": "Patterns of driving in unsafe speeds detected",
+        "actions": "Contact the driver/Contact HR/Contact Safety department/Contact Insurance/Continue to monitor the driving pattern",
         "downtime": 5,
         "cost_impact": 0,
         "sensors": ["pid_13_mode_1"]
@@ -27,15 +27,15 @@
         "desc": "High Fuel Consumption",
         "cause": "Tire pressure below optimal value",
         "actions": "Schedule vehicle for maintenance",
-        "downtime": 60,
+        "downtime": 900,
         "cost_impact": 1000,
         "sensors": ["pid_47_mode_1","pid_204_mode_1","pid_203_mode_1","pid_201_mode_1","pid_202_mode_1"]
     },
     {
         "desc": "Engine Temperature Exceeding Safe Limit",
         "cause": "Coolant level is low",
-        "actions": "Notify driver to stop and check coolant level",
-        "downtime": 30,
+        "actions": "Notify driver to stop\nCheck coolant level",
+        "downtime": 800,
         "cost_impact": 20,
         "sensors": ["pid_5_mode_1"]
     },
@@ -43,7 +43,7 @@
         "desc": "Excessive Idling",
         "cause": "Driver is allowing engine to run without moving",
         "actions": "Notify driver to turn off engine when stopped",
-        "downtime": 5,
+        "downtime": 900,
         "cost_impact": 50,
         "sensors": ["pid_12_mode_1","pid_13_mode_1"]
     }
