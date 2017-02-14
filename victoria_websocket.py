@@ -33,7 +33,7 @@ def start_kafka_consumer(msg_queue):
         avro_schema = avro.schema.Parse(fin.read())
 
     log.debug("kafka bootstrap server: %s", kafka_bootstrap_server)
-    consumer = KafkaConsumer(topic, group_id=kafka_group_id, bootstrap_servers=[kafka_bootstrap_server])#, auto_offset_reset='earliest', enable_auto_commit=False)
+    consumer = KafkaConsumer(topic, group_id=kafka_group_id, bootstrap_servers=[kafka_bootstrap_server], auto_offset_reset='latest', enable_auto_commit=False)
 
     for msg in consumer:
         try:
@@ -65,7 +65,7 @@ def start_anomaly_kafka_consumer(msg_queue):
         avro_schema = avro.schema.Parse(fin.read())
 
     log.debug("kafka bootstrap server: %s", kafka_bootstrap_server)
-    consumer = KafkaConsumer(topic, group_id=kafka_group_id, bootstrap_servers=[kafka_bootstrap_server])#, auto_offset_reset='earliest', enable_auto_commit=False)
+    consumer = KafkaConsumer(topic, group_id=kafka_group_id, bootstrap_servers=[kafka_bootstrap_server], auto_offset_reset='latest', enable_auto_commit=False)
 
     for msg in consumer:
         try:
@@ -243,7 +243,11 @@ def ws_main(wsctl_dict):
                 log.info("emitting %d updates", len(updates))
 
                 # send the remaining messages over the websocket connection
-                await ws.send(json.dumps(messages))
+                try:
+                    await ws.send(json.dumps(messages))
+                except websockets.exceptions.ConnectionClosed:
+                    log.info("Failed to send data over websocket, websocket is closed")
+
 
             await asyncio.sleep(1)
 
