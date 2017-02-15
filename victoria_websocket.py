@@ -77,7 +77,7 @@ def parse_anomaly_message(msg):
         anomaly['update_type'] = 'anomaly'
         return anomaly
     else:
-        log.warn("Could not find anomaly template for anomaly id %s", anomaly_id)
+        log.warn("Could not find anomaly template for anomaly id %s", msg['anomaly_id'])
 
 def parse_kafka_message(wsctl_dict, msg):
     if 'anomaly_id' in msg:
@@ -105,10 +105,9 @@ def get_kafka_updates(msg_queue):
             return updates
 
 
-def get_sensor_consumer(ws_ctr):
+def get_sensor_consumer():
     topic = cfg("KAFKA_TOPIC")
     schema_path = cfg("AVRO_SCHEMA_PATH")
-    group_id = cfg("KAFKA_GROUP_ID")
     bootstrap_server = cfg("KAFKA_BOOTSTRAP_SERVER")
 
     with open(schema_path) as fin:
@@ -119,10 +118,9 @@ def get_sensor_consumer(ws_ctr):
     consumer.assign([TopicPartition(topic=topic, partition=0)])
     return consumer
 
-def get_anomaly_consumer(ws_ctr):
+def get_anomaly_consumer():
     topic = cfg("KAFKA_ANOMALY_TOPIC")
     schema_path = cfg("AVRO_ANOMALY_SCHEMA_PATH")
-    group_id = cfg("KAFKA_GROUP_ID")
     bootstrap_server = cfg("KAFKA_BOOTSTRAP_SERVER")
 
     with open(schema_path) as fin:
@@ -176,15 +174,14 @@ def ws_main(wsctl_dict):
     _, _, port = cfg('WS_URL').split(':')
     host = "0.0.0.0"
     log.info('starting ws server on %s:%s', host, port)
-    wsctl_dict['ctr'] = 0
 
     # define our emit loop as a closure so we can access wsctl_dict
     async def emit_loop(ws, path):
         log.info("New websocket connection established")
 
         running = True
-        sensor_consumer = get_sensor_consumer(wsctl_dict['ctr'])
-        anomaly_consumer = get_anomaly_consumer(wsctl_dict['ctr'])
+        sensor_consumer = get_sensor_consumer()
+        anomaly_consumer = get_anomaly_consumer()
         sensor_topic = cfg("KAFKA_TOPIC")
         anomaly_topic = cfg("KAFKA_ANOMALY_TOPIC")
         wsctl_dict['ctr'] += 1
@@ -225,10 +222,11 @@ def ws_main(wsctl_dict):
                         log.debug(message)
 
                 # filter out the messages we don't want to send over the websocket
-                #updates = filter(lambda x: x is not None, updates)
+                updates = filter(lambda x: x is not None, updates)
 
                 if log.isEnabledFor(logging.DEBUG):
                     log.debug("Post filter:")
+                    updates = list(updates)
                     for message in updates:
                         log.debug(message)
                 
@@ -249,7 +247,7 @@ def ws_main(wsctl_dict):
                     log.info("Websocket is closing")
                     running = False
 
-            await asyncio.sleep(0.5)
+            await asyncio.sleep(0.1)
         log.info("exiting websocket handler, websocket is closed")
 
     # set up the ws server
