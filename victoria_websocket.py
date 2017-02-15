@@ -245,6 +245,7 @@ def ws_main(wsctl_dict):
                 except websockets.exceptions.ConnectionClosed:
                     log.info("Websocket is closing")
                     running = False
+            await asyncio.sleep(0.5)
 
         log.info("exiting websocket handler, websocket is closed")
 
