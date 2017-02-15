@@ -186,7 +186,7 @@ def ws_main(wsctl_dict):
         anomaly_topic = cfg("KAFKA_ANOMALY_TOPIC")
 
         while running:
-            sensor_records = sensor_consumer.poll(timeout_ms=500)
+            sensor_records = sensor_consumer.poll(timeout_ms=250)
             topic_partition = TopicPartition(topic=sensor_topic, partition=0)
             if topic_partition in sensor_records:
                 sensor_updates = map(deser_sensor_message, sensor_records[topic_partition])
@@ -196,7 +196,7 @@ def ws_main(wsctl_dict):
                 num_sensor_updates = 0
                 sensor_updates = []
 
-            anomaly_records = anomaly_consumer.poll(timeout_ms=500)
+            anomaly_records = anomaly_consumer.poll(timeout_ms=250)
             topic_partition = TopicPartition(topic=anomaly_topic, partition=0)
             if len(anomaly_records) > 0:
                 anomaly_updates = map(deser_anomaly_message, anomaly_records[topic_partition])
@@ -246,7 +246,6 @@ def ws_main(wsctl_dict):
                     log.info("Websocket is closing")
                     running = False
 
-            await asyncio.sleep(0.1)
         log.info("exiting websocket handler, websocket is closed")
 
     # set up the ws server
