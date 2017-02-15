@@ -34,7 +34,7 @@
     {
         "desc": "Engine Temperature Exceeding Safe Limit",
         "cause": "Coolant level is low",
-        "actions": "Notify driver to stop\nCheck coolant level",
+        "actions": "Notify driver to stop/Check coolant level",
         "downtime": 800,
         "cost_impact": 20,
         "sensors": ["pid_5_mode_1"]
