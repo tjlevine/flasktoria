@@ -115,7 +115,9 @@ def get_sensor_consumer(ws_ctr):
         avro_schema = avro.schema.Parse(fin.read())
 
     log.debug("kafka bootstrap server: %s", bootstrap_server)
-    return KafkaConsumer(topic, group_id=group_id + str(ws_ctr), bootstrap_servers=[bootstrap_server], auto_offset_reset='latest', enable_auto_commit=False)
+    consumer = KafkaConsumer(bootstrap_servers=[bootstrap_server], auto_offset_reset='latest', enable_auto_commit=False)
+    consumer.assign([TopicPartition(topic=topic, partition=0)])
+    return consumer
 
 def get_anomaly_consumer(ws_ctr):
     topic = cfg("KAFKA_ANOMALY_TOPIC")
@@ -127,7 +129,9 @@ def get_anomaly_consumer(ws_ctr):
         avro_schema = avro.schema.Parse(fin.read())
 
     log.debug("kafka bootstrap server: %s", bootstrap_server)
-    return KafkaConsumer(topic, group_id=group_id + str(ws_ctr), bootstrap_servers=[bootstrap_server], auto_offset_reset='latest', enable_auto_commit=False)
+    consumer = KafkaConsumer(bootstrap_servers=[bootstrap_server], auto_offset_reset='latest', enable_auto_commit=False)
+    consumer.assign([TopicPartition(topic=topic, partition=0)])
+    return consumer
 
 def deser_sensor_message(msg):
     schema_path = cfg("AVRO_SCHEMA_PATH")
@@ -186,7 +190,7 @@ def ws_main(wsctl_dict):
         wsctl_dict['ctr'] += 1
 
         while running:
-            sensor_records = sensor_consumer.poll()
+            sensor_records = sensor_consumer.poll(timeout_ms=500)
             topic_partition = TopicPartition(topic=sensor_topic, partition=0)
             if topic_partition in sensor_records:
                 sensor_updates = map(deser_sensor_message, sensor_records[topic_partition])
@@ -196,7 +200,7 @@ def ws_main(wsctl_dict):
                 num_sensor_updates = 0
                 sensor_updates = []
 
-            anomaly_records = anomaly_consumer.poll()
+            anomaly_records = anomaly_consumer.poll(timeout_ms=500)
             topic_partition = TopicPartition(topic=anomaly_topic, partition=0)
             if len(anomaly_records) > 0:
                 anomaly_updates = map(deser_anomaly_message, anomaly_records[topic_partition])
@@ -245,7 +249,7 @@ def ws_main(wsctl_dict):
                     log.info("Websocket is closing")
                     running = False
 
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.5)
         log.info("exiting websocket handler, websocket is closed")
 
     # set up the ws server
