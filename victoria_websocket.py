@@ -184,7 +184,6 @@ def ws_main(wsctl_dict):
         anomaly_consumer = get_anomaly_consumer()
         sensor_topic = cfg("KAFKA_TOPIC")
         anomaly_topic = cfg("KAFKA_ANOMALY_TOPIC")
-        wsctl_dict['ctr'] += 1
 
         while running:
             sensor_records = sensor_consumer.poll(timeout_ms=500)
