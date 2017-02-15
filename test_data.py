@@ -158,7 +158,7 @@ def cost(vehicle_id):
         },
         {
             "value": "3.2% Reduction in Lost Productivity This Year",
-            "why": "Investment in Poor Driver Awareness and Eduction"
+            "why": "Investment in Poor Driver Awareness and Education"
         }
     ]
     return random.choice(costs)
