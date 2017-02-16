@@ -8,7 +8,7 @@ import anomalies
 from cfg import cfg
 
 log = logging.getLogger('flasktoria.db')
-log.setLevel(logging.DEBUG)
+log.setLevel(logging.INFO)
 
 def get_cursor():
     host = cfg('DB_HOST')
@@ -122,11 +122,14 @@ def get_anomalies(start_ts, end_ts):
             'ORDER BY `timestamp` DESC'
     query = query.format(start_ts, end_ts)
     run_query(query, cursor)
-    data = cursor.fetchall()
 
     ret = []
 
-    for ts, detection_ts, confirm_ts, sensor_list, uuid, anomaly_id in data:
+    for ts, detection_ts, confirm_ts, sensor_list, uuid, anomaly_id in cursor:
+        log.debug("Anomaly row: ts=%s dts=%s cts=%s uuid=%s anomaly_id=%s", ts, detection_ts, confirm_ts, uuid, anomaly_id)
         # build the anomaly object and add it to the return list
-        ret.append(anomalies.create_from_template(anomaly_id, uuid, detection_ts, confirm_ts))
+        anomaly = anomalies.create_from_template(anomaly_id, uuid, detection_ts, confirm_ts)
+        if anomaly is not None:
+            log.debug("Anomaly object: dts=%s cts=%s uuid=%s anomaly_id=%s", anomaly['detection_timestamp'], anomaly['declared_timestamp'], anomaly['vehicle_id'], anomaly['actions'])
+            ret.append(anomaly)
     return ret
