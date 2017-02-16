@@ -15,7 +15,7 @@ def get_anomaly_template(anomaly_id):
         log.warn("Got out of range anomaly id {}".format(anomaly_id))
         return
 
-    return ANOMALIES[anomaly_id]
+    return dict(ANOMALIES[anomaly_id])
 
 def create_from_template(anomaly_id, vehicle_id, detection_ts, declared_ts):
     template = get_anomaly_template(anomaly_id)
