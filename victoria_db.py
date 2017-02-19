@@ -17,11 +17,11 @@ def get_cursor():
     return conn.cursor()
 
 def run_query(query, cursor):
-    log.debug("Running query: {}".format(query))
+    log.info("Running query: {}".format(query))
     curtime = int(time.time() * 1000)
     result = cursor.execute(query)
     query_time = int(time.time() * 1000) - curtime
-    log.debug("Query took {} ms".format(query_time))
+    log.info("Query took {} ms".format(query_time))
     return result
 
 def get_all_vehicle_uuids():
