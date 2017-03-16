@@ -6,6 +6,8 @@ Flasktoria is the REST endpoint which serves as the backend for Smart Transport.
 
 ## How is Flasktoria built?
 
+![Flasktoria Architecture](https://cto-github.cisco.com/tylevine/flasktoria/raw/master/architecture.png)
+
 Flasktoria is based on the Flask python web server framework, and utilizes the Swagger API definition framework to define all interactions between the server and the client. The swagger file defines several REST methods, along with objects sent by a websocket endpoint which is used for online streaming data. The REST methods are implemented using the Connexion library on top of Flask, and the websocket server is provided by the python package `websockets`.
 
 To gather the required information for correctly implementing the REST methods, Flasktoria utilizes the `impyla` python package to make SQL queries to the PNDA platform, where they are run against an HBase database containing the vehicle sensor data. For the online sensor data, Flasktoria maintains uses the `kafka` python package to maintain a Kafka consumer, which consumes sensor data messages from PNDA. It then transforms the sensor data messages into the proper swagger defined format, then broadcasts them to all currently open websocket connections, where they are consumed by the web front end.
