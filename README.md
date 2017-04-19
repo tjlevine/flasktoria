@@ -6,7 +6,7 @@ Flasktoria is the REST endpoint which serves as the backend for Smart Transport.
 
 ## How is Flasktoria built?
 
-![Flasktoria Architecture](https://cto-github.cisco.com/tylevine/flasktoria/raw/master/architecture.png)
+![Flasktoria Architecture](architecture.png)
 
 Flasktoria is based on the Flask python web server framework, and utilizes the Swagger API definition framework to define all interactions between the server and the client. The swagger file defines several REST methods, along with objects sent by a websocket endpoint which is used for online streaming data. The REST methods are implemented using the Connexion library on top of Flask, and the websocket server is provided by the python package `websockets`.
 
